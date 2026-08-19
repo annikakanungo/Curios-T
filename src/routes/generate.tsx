@@ -38,30 +38,54 @@ const gameTypeLabels: Record<string, string> = {
   flashcards: "Flashcards",
 };
 
+const GRADES = ["1","2","3","4","5","6","7","8","9","10","11","12"];
+
 function GeneratePage() {
+  const [mode, setMode] = useState<"course" | "topic">("course");
   const [courseId, setCourseId] = useState("");
   const [unitId, setUnitId] = useState("");
+  const [grade, setGrade] = useState("");
+  const [subject, setSubject] = useState("");
+  const [section, setSection] = useState("");
   const [gameType, setGameType] = useState<"quiz" | "matching" | "flashcards">("quiz");
   const [generated, setGenerated] = useState<GeneratedGame | null>(null);
+  const [sourceLabel, setSourceLabel] = useState("");
   const [loading, setLoading] = useState(false);
 
   const course = ontarioCourses.find((c) => c.id === courseId);
   const unit = course && getUnitById(course.id, unitId);
 
+  const topicReady = grade !== "" && subject.trim() !== "" && section.trim() !== "";
+  const canGenerate = mode === "course" ? Boolean(unit) : topicReady;
+
   const handleGenerate = async () => {
-    if (!course || !unit) return;
+    if (!canGenerate) return;
     setLoading(true);
     try {
-      const result = await generateGame({
-        data: {
-          courseCode: course.code,
-          courseName: course.name,
-          unitTitle: unit.title,
-          topics: unit.topics,
-          gameType,
-        },
-      });
+      const payload =
+        mode === "course" && course && unit
+          ? {
+              courseCode: course.code,
+              courseName: course.name,
+              unitTitle: unit.title,
+              topics: unit.topics,
+              gameType,
+            }
+          : {
+              courseCode: `Grade ${grade}`,
+              courseName: `${subject.trim()} (Grade ${grade})`,
+              unitTitle: section.trim(),
+              topics: [section.trim(), subject.trim()],
+              gameType,
+            };
+
+      const result = await generateGame({ data: payload });
       setGenerated(result);
+      setSourceLabel(
+        mode === "course"
+          ? `${course?.code} — ${unit?.title}`
+          : `Grade ${grade} ${subject.trim()} — ${section.trim()}`,
+      );
       toast.success("Game generated!");
     } catch (err) {
       console.error(err);
@@ -78,43 +102,109 @@ function GeneratePage() {
           Generate a Study Game
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Choose your Ontario course and unit. Curios T will build a custom quiz, matching game, or flashcard deck from that material.
+          Pick an Ontario course and unit, or just type your grade, subject, and topic — Curios T
+          builds a custom quiz, matching game, or flashcard deck from it.
         </p>
       </section>
 
       <div className="rounded-[32px] border border-foreground/5 bg-white p-8 shadow-sm">
-        <div className="space-y-6">
-          <div>
-            <label className="mb-2 block text-sm font-semibold">Course</label>
-            <Select value={courseId} onValueChange={(v) => { setCourseId(v); setUnitId(""); }}>
-              <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Select a course" />
-              </SelectTrigger>
-              <SelectContent>
-                {ontarioCourses.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.code} — {c.name} (Grade {c.grade})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-background/60 p-1">
+          {([
+            ["course", "Ontario course"],
+            ["topic", "Grade + topic"],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              onClick={() => setMode(value)}
+              className={`rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
+                mode === value ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-semibold">Unit</label>
-            <Select value={unitId} onValueChange={setUnitId} disabled={!course}>
-              <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder={course ? "Select a unit" : "Choose a course first"} />
-              </SelectTrigger>
-              <SelectContent>
-                {course?.units.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-6">
+          {mode === "course" ? (
+            <>
+              <div>
+                <label className="mb-2 block text-sm font-semibold">Course</label>
+                <Select value={courseId} onValueChange={(v) => { setCourseId(v); setUnitId(""); }}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue placeholder="Select a course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ontarioCourses.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.code} — {c.name} (Grade {c.grade})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold">Unit</label>
+                <Select value={unitId} onValueChange={setUnitId} disabled={!course}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue placeholder={course ? "Select a unit" : "Choose a course first"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {course?.units.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="mb-2 block text-sm font-semibold">Grade</label>
+                <Select value={grade} onValueChange={setGrade}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue placeholder="Select a grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GRADES.map((g) => (
+                      <SelectItem key={g} value={g}>
+                        Grade {g}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label htmlFor="subject" className="mb-2 block text-sm font-semibold">
+                  Subject
+                </label>
+                <Input
+                  id="subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="e.g. Math"
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="section" className="mb-2 block text-sm font-semibold">
+                  Section / topic
+                </label>
+                <Input
+                  id="section"
+                  value={section}
+                  onChange={(e) => setSection(e.target.value)}
+                  placeholder="e.g. Addition"
+                  className="rounded-xl"
+                />
+              </div>
+            </>
+          )}
 
           <div>
             <label className="mb-2 block text-sm font-semibold">Game Type</label>
@@ -137,13 +227,14 @@ function GeneratePage() {
 
           <Button
             onClick={handleGenerate}
-            disabled={!unit || loading}
+            disabled={!canGenerate || loading}
             className="w-full rounded-2xl py-6 text-lg font-extrabold"
           >
             {loading ? "Generating..." : "Generate Game"}
           </Button>
         </div>
       </div>
+
 
       {generated && (
         <div className="mt-10 rounded-[32px] border border-foreground/5 bg-white p-8 shadow-sm">
