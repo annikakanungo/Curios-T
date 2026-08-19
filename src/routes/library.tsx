@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/library")({
   head: () => ({
     meta: [
-      { title: "Game Library — Lumina" },
+      { title: "Game Library — learn.fun" },
       {
         name: "description",
         content: "Browse Ontario curriculum-aligned educational games by subject and grade.",
       },
-      { property: "og:title", content: "Game Library — Lumina" },
+      { property: "og:title", content: "Game Library — learn.fun" },
       {
         property: "og:description",
         content: "Browse Ontario curriculum-aligned educational games by subject and grade.",
@@ -87,7 +87,7 @@ function LibraryPage() {
           Want a game for your exact unit?
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-muted-foreground">
-          Pick your Ontario course and unit, and Lumina will generate a custom study game for that material.
+          Pick your Ontario course and unit, and learn.fun will generate a custom study game for that material.
         </p>
         <Button asChild className="mt-6 rounded-full px-8 py-5 text-base font-bold">
           <Link to="/generate">Generate a Game</Link>

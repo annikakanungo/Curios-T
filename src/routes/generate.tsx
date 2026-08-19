@@ -15,12 +15,12 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/generate")({
   head: () => ({
     meta: [
-      { title: "Generate a Game — Lumina" },
+      { title: "Generate a Game — learn.fun" },
       {
         name: "description",
         content: "Pick an Ontario course and unit to generate a custom study game.",
       },
-      { property: "og:title", content: "Generate a Game — Lumina" },
+      { property: "og:title", content: "Generate a Game — learn.fun" },
       {
         property: "og:description",
         content: "Pick an Ontario course and unit to generate a custom study game.",
@@ -78,7 +78,7 @@ function GeneratePage() {
           Generate a Study Game
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Choose your Ontario course and unit. Lumina will build a custom quiz, matching game, or flashcard deck from that material.
+          Choose your Ontario course and unit. learn.fun will build a custom quiz, matching game, or flashcard deck from that material.
         </p>
       </section>
 
