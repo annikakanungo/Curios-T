@@ -401,7 +401,7 @@ export function SpeedGame({ items }: { items: SpeedItem[] }) {
 
 /* ------------------------------ Word Scramble ----------------------------- */
 
-function scramble(word: string) {
+function scramble(word: string): string {
   const chars = word.split("");
   for (let i = chars.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
