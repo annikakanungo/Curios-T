@@ -49,9 +49,7 @@ export const Route = createFileRoute("/play/$gameId")({
 });
 
 function PlayPage() {
-  const data = Route.useLoaderData();
-  if (!data) return null;
-  const { game, content } = data;
+  const { game, content } = Route.useLoaderData() as LoaderData;
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
