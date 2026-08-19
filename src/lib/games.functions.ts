@@ -50,7 +50,7 @@ export type GeneratedGame =
   | { type: "flashcards"; cards: Flashcard[] };
 
 export const generateGame = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => GenerateGameInput.parse(input))
+  .inputValidator((input): z.infer<typeof GenerateGameInput> => GenerateGameInput.parse(input))
   .handler(async ({ data }) => {
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) {
