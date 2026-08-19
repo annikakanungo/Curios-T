@@ -1,28 +1,46 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { getGameById, getGameContent } from "@/lib/games";
+import {
+  getGameById,
+  getGameContent,
+  type Game,
+  type QuizQuestion,
+  type MatchingPair,
+  type Flashcard,
+} from "@/lib/games";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 
+type GameContent =
+  | { type: "quiz"; questions: QuizQuestion[] }
+  | { type: "matching"; pairs: MatchingPair[] }
+  | { type: "flashcards"; cards: Flashcard[] }
+  | null;
+
+interface LoaderData {
+  game: Game;
+  content: GameContent;
+}
+
 export const Route = createFileRoute("/play/$gameId")({
   head: ({ params }) => ({
     meta: [
-      { title: `Play ${params.gameId} — Lumina` },
+      { title: `Play ${params.gameId} — learn.fun` },
       {
         name: "description",
-        content: "Play an interactive educational game on Lumina.",
+        content: "Play an interactive educational game on learn.fun.",
       },
-      { property: "og:title", content: `Play ${params.gameId} — Lumina` },
+      { property: "og:title", content: `Play ${params.gameId} — learn.fun` },
       {
         property: "og:description",
-        content: "Play an interactive educational game on Lumina.",
+        content: "Play an interactive educational game on learn.fun.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  loader: async ({ params }) => {
+  loader: async ({ params }): Promise<LoaderData> => {
     const game = getGameById(params.gameId);
     if (!game) throw notFound();
     return { game, content: getGameContent(params.gameId) };
