@@ -5,12 +5,12 @@ import { Progress } from "@/components/ui/progress";
 export const Route = createFileRoute("/quests")({
   head: () => ({
     meta: [
-      { title: "Quests — learn.fun" },
+      { title: "Quests — Curios T" },
       {
         name: "description",
         content: "Daily quests and learning challenges for Ontario students.",
       },
-      { property: "og:title", content: "Quests — learn.fun" },
+      { property: "og:title", content: "Quests — Curios T" },
       {
         property: "og:description",
         content: "Daily quests and learning challenges for Ontario students.",

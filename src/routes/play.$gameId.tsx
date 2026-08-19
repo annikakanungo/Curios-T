@@ -26,15 +26,15 @@ interface LoaderData {
 export const Route = createFileRoute("/play/$gameId")({
   head: ({ params }) => ({
     meta: [
-      { title: `Play ${params.gameId} — learn.fun` },
+      { title: `Play ${params.gameId} — Curios T` },
       {
         name: "description",
-        content: "Play an interactive educational game on learn.fun.",
+        content: "Play an interactive educational game on Curios T.",
       },
-      { property: "og:title", content: `Play ${params.gameId} — learn.fun` },
+      { property: "og:title", content: `Play ${params.gameId} — Curios T` },
       {
         property: "og:description",
-        content: "Play an interactive educational game on learn.fun.",
+        content: "Play an interactive educational game on Curios T.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
