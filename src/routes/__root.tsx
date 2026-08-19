@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,14 +78,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Lumina — Play your way to mastery" },
+      {
+        name: "description",
+        content:
+          "Ontario curriculum-aligned educational games for K-12 students. Play quizzes, matching games, and flashcards built for the course unit you're studying.",
+      },
+      { name: "author", content: "Lumina Learning" },
+      { property: "og:title", content: "Lumina — Play your way to mastery" },
+      {
+        property: "og:description",
+        content:
+          "Ontario curriculum-aligned educational games for K-12 students.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:site", content: "@LuminaLearning" },
     ],
     links: [
       {
@@ -92,6 +101,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      {
+        rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -114,13 +136,59 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function Navbar() {
+  return (
+    <nav className="sticky top-0 z-50 border-b border-foreground/5 bg-background/80 px-6 py-3 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link to="/" className="text-xl font-extrabold tracking-tighter text-primary">
+            LUMINA.
+          </Link>
+          <div className="hidden gap-6 text-sm font-semibold text-muted-foreground md:flex">
+            <Link
+              to="/library"
+              activeProps={{ className: "text-foreground" }}
+              className="transition-colors hover:text-foreground"
+            >
+              Library
+            </Link>
+            <Link
+              to="/quests"
+              activeProps={{ className: "text-foreground" }}
+              className="transition-colors hover:text-foreground"
+            >
+              Quests
+            </Link>
+            <Link
+              to="/achievements"
+              activeProps={{ className: "text-foreground" }}
+              className="transition-colors hover:text-foreground"
+            >
+              Achievements
+            </Link>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 rounded-full bg-accent-peach px-3 py-1">
+            <span className="text-xs font-mono font-bold text-orange-700">7 DAY STREAK</span>
+          </div>
+          <div className="grid size-9 place-items-center rounded-full border border-foreground/5 bg-accent-lavender font-bold text-violet-900">
+            JD
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <Navbar />
       <Outlet />
+      <Toaster />
     </QueryClientProvider>
   );
 }
