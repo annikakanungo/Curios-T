@@ -51,7 +51,7 @@ export type GeneratedGame =
 
 export const generateGame = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => GenerateGameInput.parse(input))
-  .handler(async ({ data }): Promise<GeneratedGame> => {
+  .handler(async ({ data }) => {
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) {
       throw new Error("Missing LOVABLE_API_KEY");
@@ -69,7 +69,7 @@ export const generateGame = createServerFn({ method: "POST" })
         system: systemPrompt,
         prompt: `Create 5 multiple-choice quiz questions for this unit. Each question has 4 options and one correct answer. Return JSON matching the schema.`,
       });
-      return output as GeneratedGame;
+      return output;
     }
 
     if (data.gameType === "matching") {
@@ -79,7 +79,7 @@ export const generateGame = createServerFn({ method: "POST" })
         system: systemPrompt,
         prompt: `Create 4 matching pairs for this unit. Each pair has a left term/concept and a right definition/example. Return JSON matching the schema.`,
       });
-      return output as GeneratedGame;
+      return output;
     }
 
     const { output } = await generateText({
@@ -88,5 +88,5 @@ export const generateGame = createServerFn({ method: "POST" })
       system: systemPrompt,
       prompt: `Create 6 flashcards for this unit. Each flashcard has a term and a concise definition. Return JSON matching the schema.`,
     });
-    return output as GeneratedGame;
+    return output;
   });

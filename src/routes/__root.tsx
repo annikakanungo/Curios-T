@@ -78,14 +78,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lumina — Play your way to mastery" },
+      { title: "learn.fun — Play your way to mastery" },
       {
         name: "description",
         content:
           "Ontario curriculum-aligned educational games for K-12 students. Play quizzes, matching games, and flashcards built for the course unit you're studying.",
       },
-      { name: "author", content: "Lumina Learning" },
-      { property: "og:title", content: "Lumina — Play your way to mastery" },
+      { name: "author", content: "learn.fun" },
+      { property: "og:title", content: "learn.fun — Play your way to mastery" },
       {
         property: "og:description",
         content:
@@ -142,7 +142,7 @@ function Navbar() {
       <div className="mx-auto flex max-w-6xl items-center justify-between">
         <div className="flex items-center gap-8">
           <Link to="/" className="text-xl font-extrabold tracking-tighter text-primary">
-            LUMINA.
+            learn.fun
           </Link>
           <div className="hidden gap-6 text-sm font-semibold text-muted-foreground md:flex">
             <Link
