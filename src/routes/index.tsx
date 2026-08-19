@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "learn.fun — Play your way to mastery" },
+      { title: "Curios T — Play your way to mastery" },
       {
         name: "description",
         content:
           "Ontario curriculum-aligned educational games for K-12 students. Quizzes, matching, and flashcards built for the course unit you're studying.",
       },
-      { property: "og:title", content: "learn.fun — Play your way to mastery" },
+      { property: "og:title", content: "Curios T — Play your way to mastery" },
       {
         property: "og:description",
         content:
