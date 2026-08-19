@@ -33,6 +33,30 @@ export interface Flashcard {
   definition: string;
 }
 
+export interface SpeedItem {
+  statement: string;
+  isTrue: boolean;
+  explanation: string;
+}
+
+export interface ScrambleWord {
+  word: string;
+  hint: string;
+}
+
+export interface SortBucketSet {
+  categories: string[];
+  items: { label: string; category: string }[];
+}
+
+export interface EscapeStage {
+  clue: string;
+  options: string[];
+  correctIndex: number;
+  hint: string;
+}
+
+
 export const games: Game[] = [
   {
     id: "orbit-match",

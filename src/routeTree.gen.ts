@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as GenerateRouteImport } from './routes/generate'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as PrizesRouteImport } from './routes/prizes'
 import { Route as QuestsRouteImport } from './routes/quests'
 import { Route as PlayGameIdRouteImport } from './routes/play.$gameId'
 
@@ -36,6 +37,11 @@ const LibraryRoute = LibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrizesRoute = PrizesRouteImport.update({
+  id: '/prizes',
+  path: '/prizes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const QuestsRoute = QuestsRouteImport.update({
   id: '/quests',
   path: '/quests',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/achievements': typeof AchievementsRoute
   '/generate': typeof GenerateRoute
   '/library': typeof LibraryRoute
+  '/prizes': typeof PrizesRoute
   '/quests': typeof QuestsRoute
   '/play/$gameId': typeof PlayGameIdRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/achievements': typeof AchievementsRoute
   '/generate': typeof GenerateRoute
   '/library': typeof LibraryRoute
+  '/prizes': typeof PrizesRoute
   '/quests': typeof QuestsRoute
   '/play/$gameId': typeof PlayGameIdRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/achievements': typeof AchievementsRoute
   '/generate': typeof GenerateRoute
   '/library': typeof LibraryRoute
+  '/prizes': typeof PrizesRoute
   '/quests': typeof QuestsRoute
   '/play/$gameId': typeof PlayGameIdRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/generate'
     | '/library'
+    | '/prizes'
     | '/quests'
     | '/play/$gameId'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/generate'
     | '/library'
+    | '/prizes'
     | '/quests'
     | '/play/$gameId'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/achievements'
     | '/generate'
     | '/library'
+    | '/prizes'
     | '/quests'
     | '/play/$gameId'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   AchievementsRoute: typeof AchievementsRoute
   GenerateRoute: typeof GenerateRoute
   LibraryRoute: typeof LibraryRoute
+  PrizesRoute: typeof PrizesRoute
   QuestsRoute: typeof QuestsRoute
   PlayGameIdRoute: typeof PlayGameIdRoute
 }
@@ -138,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prizes': {
+      id: '/prizes'
+      path: '/prizes'
+      fullPath: '/prizes'
+      preLoaderRoute: typeof PrizesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/quests': {
       id: '/quests'
       path: '/quests'
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AchievementsRoute: AchievementsRoute,
   GenerateRoute: GenerateRoute,
   LibraryRoute: LibraryRoute,
+  PrizesRoute: PrizesRoute,
   QuestsRoute: QuestsRoute,
   PlayGameIdRoute: PlayGameIdRoute,
 }
