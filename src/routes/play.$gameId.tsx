@@ -67,9 +67,9 @@ function PlayPage() {
 
       {!content ? (
         <p className="text-center text-muted-foreground">Game content not available.</p>
-      ) : game.type === "quiz" ? (
+      ) : content.type === "quiz" ? (
         <QuizGame questions={content.questions} />
-      ) : game.type === "matching" ? (
+      ) : content.type === "matching" ? (
         <MatchingGame pairs={content.pairs} />
       ) : (
         <FlashcardGame cards={content.cards} />
@@ -87,6 +87,8 @@ function QuizGame({ questions }: { questions: { question: string; options: strin
 
   const current = questions[index];
   const progress = Math.round(((index + (checked ? 1 : 0)) / questions.length) * 100);
+
+  if (!current) return null;
 
   const handleCheck = () => {
     if (selected === null) return;
