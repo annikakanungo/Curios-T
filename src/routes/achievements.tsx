@@ -3,15 +3,15 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/achievements")({
   head: () => ({
     meta: [
-      { title: "Achievements — Lumina" },
+      { title: "Achievements — learn.fun" },
       {
         name: "description",
-        content: "Track your learning achievements and badges on Lumina.",
+        content: "Track your learning achievements and badges on learn.fun.",
       },
-      { property: "og:title", content: "Achievements — Lumina" },
+      { property: "og:title", content: "Achievements — learn.fun" },
       {
         property: "og:description",
-        content: "Track your learning achievements and badges on Lumina.",
+        content: "Track your learning achievements and badges on learn.fun.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
