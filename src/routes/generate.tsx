@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ontarioCourses, getUnitById } from "@/lib/curriculum";
 import { generateGame, type GeneratedGame } from "@/lib/games.functions";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
