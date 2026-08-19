@@ -243,7 +243,7 @@ function GeneratePage() {
             Your {gameTypeLabels[generated.type]}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {course?.code} — {unit?.title}
+            {sourceLabel}
           </p>
 
           {generated.type === "quiz" && (
