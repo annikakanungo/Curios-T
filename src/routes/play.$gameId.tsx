@@ -291,6 +291,8 @@ function FlashcardGame({ cards }: { cards: { term: string; definition: string }[
   const [finished, setFinished] = useState(false);
   const card = cards[index];
 
+  if (!card) return null;
+
   const handleNext = () => {
     setFlipped(false);
     if (index + 1 >= cards.length) {
