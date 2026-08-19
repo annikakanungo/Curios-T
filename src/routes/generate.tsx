@@ -53,11 +53,13 @@ function GeneratePage() {
     setLoading(true);
     try {
       const result = await generateGame({
-        courseCode: course.code,
-        courseName: course.name,
-        unitTitle: unit.title,
-        topics: unit.topics,
-        gameType,
+        data: {
+          courseCode: course.code,
+          courseName: course.name,
+          unitTitle: unit.title,
+          topics: unit.topics,
+          gameType,
+        },
       });
       setGenerated(result);
       toast.success("Game generated!");
