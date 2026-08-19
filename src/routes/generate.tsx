@@ -1,8 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { ontarioCourses, getUnitById } from "@/lib/curriculum";
 import { generateGame, type GeneratedGame } from "@/lib/games.functions";
-import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -46,8 +45,6 @@ function GeneratePage() {
   const [generated, setGenerated] = useState<GeneratedGame | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const generate = useServerFn(generateGame);
-
   const course = ontarioCourses.find((c) => c.id === courseId);
   const unit = course && getUnitById(course.id, unitId);
 
@@ -55,7 +52,7 @@ function GeneratePage() {
     if (!course || !unit) return;
     setLoading(true);
     try {
-      const result = await generate({
+      const result = await generateGame({
         courseCode: course.code,
         courseName: course.name,
         unitTitle: unit.title,
