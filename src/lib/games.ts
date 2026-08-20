@@ -120,7 +120,48 @@ export const games: Game[] = [
     image: equationStackImg,
     accent: "peach",
   },
+  {
+    id: "word-forge",
+    title: "Word Forge",
+    description: "Scrabble-style tile building — spell curriculum terms and score letter points.",
+    subject: "Language",
+    type: "wordbuild",
+    level: 6,
+    image: wordForgeImg,
+    accent: "lavender",
+  },
+  {
+    id: "concept-fleet",
+    title: "Concept Fleet",
+    description: "Battleship with brains — answer questions to fire on the hidden science fleet.",
+    subject: "Life Sciences",
+    type: "battleship",
+    level: 9,
+    image: conceptFleetImg,
+    accent: "mint",
+  },
+  {
+    id: "lightning-round",
+    title: "Lightning Round",
+    description: "45 seconds, true or false, streak multipliers. How fast can you think?",
+    subject: "History",
+    type: "speed",
+    level: 5,
+    image: lightningRoundImg,
+    accent: "peach",
+  },
+  {
+    id: "escape-lab",
+    title: "Escape the Lab",
+    description: "Crack a chain of clue locks to escape before the experiment goes wrong.",
+    subject: "Chemistry",
+    type: "escape",
+    level: 8,
+    image: escapeLabImg,
+    accent: "lavender",
+  },
 ];
+
 
 export const orbitMatchPairs: MatchingPair[] = [
   { id: "1", left: "Mercury", right: "Closest to the Sun" },
