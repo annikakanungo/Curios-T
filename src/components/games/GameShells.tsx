@@ -660,3 +660,257 @@ export function EscapeGame({ stages }: { stages: EscapeStage[] }) {
     </div>
   );
 }
+
+/* ------------------------- Word Forge (Scrabble) ------------------------- */
+
+const LETTER_POINTS: Record<string, number> = {
+  A: 1, E: 1, I: 1, O: 1, U: 1, L: 1, N: 1, S: 1, T: 1, R: 1,
+  D: 2, G: 2, B: 3, C: 3, M: 3, P: 3, F: 4, H: 4, V: 4, W: 4, Y: 4,
+  K: 5, J: 8, X: 8, Q: 10, Z: 10,
+};
+
+function letterScore(word: string) {
+  return word
+    .toUpperCase()
+    .split("")
+    .reduce((sum, ch) => sum + (LETTER_POINTS[ch] ?? 1), 0);
+}
+
+function shuffleArray<T>(arr: T[]): T[] {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+export function WordBuildGame({ puzzles }: { puzzles: WordBuildPuzzle[] }) {
+  const [index, setIndex] = useState(0);
+  const [placed, setPlaced] = useState<number[]>([]);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+
+  const puzzle = puzzles[index];
+  const tiles = useMemo(() => {
+    if (!puzzle) return [] as string[];
+    const extra = puzzle.bonusLetters ?? ["E", "R", "S"];
+    return shuffleArray([...puzzle.answer.toUpperCase().split(""), ...extra]);
+  }, [puzzle]);
+
+  if (!puzzle) return null;
+
+  const built = placed.map((i) => tiles[i] ?? "").join("");
+
+  const submit = () => {
+    if (built === puzzle.answer.toUpperCase()) {
+      const points = letterScore(built);
+      setScore((s) => s + points);
+      toast.success(`Nice! +${points} points`);
+      if (index + 1 >= puzzles.length) {
+        setFinished(true);
+      } else {
+        setIndex((i) => i + 1);
+        setPlaced([]);
+      }
+    } else {
+      toast.error("Not the word yet — check your tiles.");
+    }
+  };
+
+  const reset = () => {
+    setIndex(0);
+    setPlaced([]);
+    setScore(0);
+    setFinished(false);
+  };
+
+  if (finished) {
+    return (
+      <ResultCard
+        title="Word Forge Cleared!"
+        subtitle={`You forged every word for ${score} tile points.`}
+        onReplay={reset}
+      />
+    );
+  }
+
+  return (
+    <div className={panel}>
+      <div className="mb-6 flex items-center justify-between">
+        <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          Word {index + 1} / {puzzles.length}
+        </span>
+        <span className="rounded-full bg-secondary px-3 py-1 font-mono text-xs font-bold">
+          {score} pts
+        </span>
+      </div>
+
+      <p className="text-center text-lg font-semibold">{puzzle.clue}</p>
+
+      <div className="mt-8 flex min-h-[72px] flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-foreground/10 p-4">
+        {placed.length === 0 ? (
+          <span className="text-sm text-muted-foreground">Tap tiles to spell the word</span>
+        ) : (
+          placed.map((tileIdx, pos) => (
+            <button
+              key={`${tileIdx}-${pos}`}
+              onClick={() => setPlaced((p) => p.filter((_, k) => k !== pos))}
+              className="relative h-12 w-12 rounded-lg border-2 border-primary bg-primary/10 text-lg font-extrabold text-primary"
+            >
+              {tiles[tileIdx]}
+              <span className="absolute bottom-0 right-1 font-mono text-[9px]">
+                {LETTER_POINTS[tiles[tileIdx] ?? ""] ?? 1}
+              </span>
+            </button>
+          ))
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
+        {tiles.map((letter, i) => (
+          <button
+            key={i}
+            disabled={placed.includes(i)}
+            onClick={() => setPlaced((p) => [...p, i])}
+            className={`relative h-12 w-12 rounded-lg border-2 text-lg font-extrabold transition-all ${
+              placed.includes(i)
+                ? "border-foreground/5 bg-background/40 text-muted-foreground opacity-40"
+                : "border-foreground/10 bg-background/60 hover:border-primary"
+            }`}
+          >
+            {letter}
+            <span className="absolute bottom-0 right-1 font-mono text-[9px] opacity-70">
+              {LETTER_POINTS[letter] ?? 1}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-8 flex gap-3">
+        <Button variant="outline" onClick={() => setPlaced([])} className="rounded-2xl py-6 font-bold">
+          Clear
+        </Button>
+        <Button onClick={submit} className="flex-1 rounded-2xl py-6 text-lg font-extrabold">
+          Submit Word
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------ Concept Fleet (Battleship) ---------------------- */
+
+export function BattleshipGame({ set }: { set: BattleshipSet }) {
+  const shipCells = useMemo(
+    () => new Set(set.ships.flatMap((s) => s.cells)),
+    [set],
+  );
+  const [hits, setHits] = useState<Set<number>>(new Set());
+  const [misses, setMisses] = useState<Set<number>>(new Set());
+  const [target, setTarget] = useState<number | null>(null);
+  const [qIndex, setQIndex] = useState(0);
+  const [shots, setShots] = useState(0);
+
+  const question = set.questions[qIndex % set.questions.length];
+  const won = hits.size === shipCells.size && shipCells.size > 0;
+
+  const reset = () => {
+    setHits(new Set());
+    setMisses(new Set());
+    setTarget(null);
+    setQIndex(0);
+    setShots(0);
+  };
+
+  if (won) {
+    return (
+      <ResultCard
+        title="Fleet Sunk!"
+        subtitle={`You cleared all ${set.ships.length} ships in ${shots} shots.`}
+        onReplay={reset}
+      />
+    );
+  }
+
+  const fire = (optIdx: number) => {
+    if (target === null || !question) return;
+    setShots((s) => s + 1);
+    setQIndex((i) => i + 1);
+    if (optIdx === question.correctIndex) {
+      if (shipCells.has(target)) {
+        setHits((h) => new Set(h).add(target));
+        toast.success("Direct hit!");
+      } else {
+        setMisses((m) => new Set(m).add(target));
+        toast("Correct answer — but empty water.");
+      }
+    } else {
+      setMisses((m) => new Set(m).add(target));
+      toast.error("Wrong answer — the shot fizzled.");
+    }
+    setTarget(null);
+  };
+
+  const cells = Array.from({ length: set.size * set.size }, (_, i) => i);
+
+  return (
+    <div className={panel}>
+      <div className="mb-6 flex items-center justify-between">
+        <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          Ships remaining: {shipCells.size - hits.size}
+        </span>
+        <span className="rounded-full bg-secondary px-3 py-1 font-mono text-xs font-bold">
+          {shots} shots
+        </span>
+      </div>
+
+      <div
+        className="mx-auto grid max-w-md gap-2"
+        style={{ gridTemplateColumns: `repeat(${set.size}, minmax(0, 1fr))` }}
+      >
+        {cells.map((cell) => {
+          const isHit = hits.has(cell);
+          const isMiss = misses.has(cell);
+          const isTarget = target === cell;
+          return (
+            <button
+              key={cell}
+              disabled={isHit || isMiss}
+              onClick={() => setTarget(cell)}
+              className={`aspect-square rounded-lg border-2 text-lg transition-all ${
+                isHit
+                  ? "border-red-400 bg-red-100"
+                  : isMiss
+                    ? "border-foreground/5 bg-background/40 opacity-50"
+                    : isTarget
+                      ? "border-primary bg-primary/10"
+                      : "border-foreground/10 bg-background/60 hover:border-primary"
+              }`}
+            >
+              {isHit ? "💥" : isMiss ? "🌊" : isTarget ? "🎯" : ""}
+            </button>
+          );
+        })}
+      </div>
+
+      {target === null ? (
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Pick a square to target, then answer the question to fire.
+        </p>
+      ) : (
+        question && (
+          <div className="mt-8 animate-fade-in rounded-2xl border border-foreground/5 bg-background/50 p-6">
+            <p className="text-center font-extrabold">{question.question}</p>
+            <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
+              {question.options.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => fire(i)}
+                  className="rounded-xl border-2 border-foreground/5 bg-card p-4 text-left font-semibold transition-all hover:border-primary"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+      )}
+    </div>
+  );
+}
