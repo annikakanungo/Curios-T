@@ -309,4 +309,28 @@ export const escapeLabStages: EscapeStage[] = [
   },
 ];
 
+export function getGameById(id: string): Game | undefined {
+  return games.find((g) => g.id === id);
 }
+
+export function getGameContent(id: string) {
+  switch (id) {
+    case "orbit-match":
+      return { type: "matching" as const, pairs: orbitMatchPairs };
+    case "reaction-lab":
+      return { type: "quiz" as const, questions: reactionLabQuestions };
+    case "equation-stack":
+      return { type: "flashcards" as const, cards: equationStackFlashcards };
+    case "word-forge":
+      return { type: "wordbuild" as const, puzzles: wordForgePuzzles };
+    case "concept-fleet":
+      return { type: "battleship" as const, set: conceptFleetSet };
+    case "lightning-round":
+      return { type: "speed" as const, items: lightningRoundItems };
+    case "escape-lab":
+      return { type: "escape" as const, stages: escapeLabStages };
+    default:
+      return null;
+  }
+}
+
