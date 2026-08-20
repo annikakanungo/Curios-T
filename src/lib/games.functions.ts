@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { generateText, Output } from "ai";
+import { generateObject } from "ai";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import type { QuizQuestion, MatchingPair, Flashcard } from "./games";
 
@@ -63,30 +63,30 @@ export const generateGame = createServerFn({ method: "POST" })
     const systemPrompt = `You are an expert Ontario curriculum instructional designer. Generate educational game content for ${data.courseCode} (${data.courseName}), unit: ${data.unitTitle}. Topics: ${topicsText}. The content must be accurate for the Ontario curriculum, age-appropriate for K-12, and focused on the unit's learning objectives.`;
 
     if (data.gameType === "quiz") {
-      const { output } = await generateText({
+      const { object } = await generateObject({
         model: gateway("google/gemini-3.7-flash"),
-        output: Output.object({ schema: GeneratedQuizSchema }),
+        schema: GeneratedQuizSchema,
         system: systemPrompt,
         prompt: `Create 5 multiple-choice quiz questions for this unit. Each question has 4 options and one correct answer. Return JSON matching the schema.`,
       });
-      return output;
+      return object;
     }
 
     if (data.gameType === "matching") {
-      const { output } = await generateText({
+      const { object } = await generateObject({
         model: gateway("google/gemini-3.7-flash"),
-        output: Output.object({ schema: GeneratedMatchingSchema }),
+        schema: GeneratedMatchingSchema,
         system: systemPrompt,
         prompt: `Create 4 matching pairs for this unit. Each pair has a left term/concept and a right definition/example. Return JSON matching the schema.`,
       });
-      return output;
+      return object;
     }
 
-    const { output } = await generateText({
+    const { object } = await generateObject({
       model: gateway("google/gemini-3.7-flash"),
-      output: Output.object({ schema: GeneratedFlashcardsSchema }),
+      schema: GeneratedFlashcardsSchema,
       system: systemPrompt,
       prompt: `Create 6 flashcards for this unit. Each flashcard has a term and a concise definition. Return JSON matching the schema.`,
     });
-    return output;
+    return object;
   });
