@@ -1,9 +1,29 @@
 import orbitMatchImg from "@/assets/orbit-match.jpg";
 import reactionLabImg from "@/assets/reaction-lab.jpg";
 import equationStackImg from "@/assets/equation-stack.jpg";
+import wordForgeImg from "@/assets/word-forge.jpg";
+import conceptFleetImg from "@/assets/concept-fleet.jpg";
+import lightningRoundImg from "@/assets/lightning-round.jpg";
+import escapeLabImg from "@/assets/escape-lab.jpg";
 
-export type GameType = "quiz" | "matching" | "flashcards";
-export type Subject = "Mathematics" | "Life Sciences" | "Astronomy" | "Chemistry" | "History";
+export type GameType =
+  | "quiz"
+  | "matching"
+  | "flashcards"
+  | "speed"
+  | "scramble"
+  | "sort"
+  | "escape"
+  | "wordbuild"
+  | "battleship";
+export type Subject =
+  | "Mathematics"
+  | "Life Sciences"
+  | "Astronomy"
+  | "Chemistry"
+  | "History"
+  | "Language";
+
 
 export interface Game {
   id: string;
