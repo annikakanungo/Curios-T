@@ -10,6 +10,8 @@ import type {
   ScrambleWord,
   SortBucketSet,
   EscapeStage,
+  WordBuildPuzzle,
+  BattleshipSet,
 } from "@/lib/games";
 
 const panel =
