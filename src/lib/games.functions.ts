@@ -13,7 +13,6 @@ const GenerateGameInput = z.object({
 });
 
 const GeneratedQuizSchema = z.object({
-  type: z.literal("quiz"),
   questions: z.array(
     z.object({
       question: z.string(),
@@ -24,7 +23,6 @@ const GeneratedQuizSchema = z.object({
 });
 
 const GeneratedMatchingSchema = z.object({
-  type: z.literal("matching"),
   pairs: z.array(
     z.object({
       id: z.string(),
@@ -35,7 +33,6 @@ const GeneratedMatchingSchema = z.object({
 });
 
 const GeneratedFlashcardsSchema = z.object({
-  type: z.literal("flashcards"),
   cards: z.array(
     z.object({
       term: z.string(),
@@ -67,9 +64,9 @@ export const generateGame = createServerFn({ method: "POST" })
         model: gateway("google/gemini-3.7-flash"),
         schema: GeneratedQuizSchema,
         system: systemPrompt,
-        prompt: `Create 5 multiple-choice quiz questions for this unit. Each question has 4 options and one correct answer. Return JSON matching the schema.`,
+        prompt: `Create 5 multiple-choice quiz questions for this unit. Each question has exactly 4 options and one correct answer (correctIndex 0-3). Return JSON matching the schema.`,
       });
-      return object;
+      return { type: "quiz" as const, questions: object.questions };
     }
 
     if (data.gameType === "matching") {
@@ -79,7 +76,7 @@ export const generateGame = createServerFn({ method: "POST" })
         system: systemPrompt,
         prompt: `Create 4 matching pairs for this unit. Each pair has a left term/concept and a right definition/example. Return JSON matching the schema.`,
       });
-      return object;
+      return { type: "matching" as const, pairs: object.pairs };
     }
 
     const { object } = await generateObject({
@@ -88,5 +85,5 @@ export const generateGame = createServerFn({ method: "POST" })
       system: systemPrompt,
       prompt: `Create 6 flashcards for this unit. Each flashcard has a term and a concise definition. Return JSON matching the schema.`,
     });
-    return object;
+    return { type: "flashcards" as const, cards: object.cards };
   });
