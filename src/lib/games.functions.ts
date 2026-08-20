@@ -17,8 +17,8 @@ const GeneratedQuizSchema = z.object({
   questions: z.array(
     z.object({
       question: z.string(),
-      options: z.array(z.string()).length(4),
-      correctIndex: z.number().int().min(0).max(3),
+      options: z.array(z.string()),
+      correctIndex: z.number(),
     }),
   ),
 });
