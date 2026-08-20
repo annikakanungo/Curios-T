@@ -1,7 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { generateObject } from "ai";
-import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import type { QuizQuestion, MatchingPair, Flashcard } from "./games";
 
 const GenerateGameInput = z.object({
@@ -12,7 +10,7 @@ const GenerateGameInput = z.object({
   gameType: z.enum(["quiz", "matching", "flashcards"]),
 });
 
-const GeneratedQuizSchema = z.object({
+const QuizSchema = z.object({
   questions: z.array(
     z.object({
       question: z.string(),
@@ -22,7 +20,7 @@ const GeneratedQuizSchema = z.object({
   ),
 });
 
-const GeneratedMatchingSchema = z.object({
+const MatchingSchema = z.object({
   pairs: z.array(
     z.object({
       id: z.string(),
@@ -32,7 +30,7 @@ const GeneratedMatchingSchema = z.object({
   ),
 });
 
-const GeneratedFlashcardsSchema = z.object({
+const FlashcardsSchema = z.object({
   cards: z.array(
     z.object({
       term: z.string(),
@@ -46,44 +44,139 @@ export type GeneratedGame =
   | { type: "matching"; pairs: MatchingPair[] }
   | { type: "flashcards"; cards: Flashcard[] };
 
+const JSON_SCHEMAS = {
+  quiz: {
+    type: "object",
+    additionalProperties: false,
+    required: ["questions"],
+    properties: {
+      questions: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["question", "options", "correctIndex"],
+          properties: {
+            question: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            correctIndex: { type: "integer" },
+          },
+        },
+      },
+    },
+  },
+  matching: {
+    type: "object",
+    additionalProperties: false,
+    required: ["pairs"],
+    properties: {
+      pairs: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["id", "left", "right"],
+          properties: {
+            id: { type: "string" },
+            left: { type: "string" },
+            right: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  flashcards: {
+    type: "object",
+    additionalProperties: false,
+    required: ["cards"],
+    properties: {
+      cards: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["term", "definition"],
+          properties: {
+            term: { type: "string" },
+            definition: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+} as const;
+
+const PROMPTS = {
+  quiz: "Create 5 multiple-choice quiz questions for this unit. Each question has exactly 4 options and one correct answer, with correctIndex between 0 and 3. Return JSON.",
+  matching:
+    "Create 4 matching pairs for this unit. Each pair has an id, a left term/concept and a right definition/example. Return JSON.",
+  flashcards:
+    "Create 6 flashcards for this unit. Each flashcard has a term and a concise definition. Return JSON.",
+} as const;
+
+async function callGateway(
+  apiKey: string,
+  system: string,
+  prompt: string,
+  name: keyof typeof JSON_SCHEMAS,
+): Promise<unknown> {
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Lovable-API-Key": apiKey,
+      "X-Lovable-AIG-SDK": "fetch",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-3.7-flash",
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: prompt },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: { name, strict: true, schema: JSON_SCHEMAS[name] },
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.error("AI gateway error", res.status, body);
+    if (res.status === 429) throw new Error("Too many requests right now — try again in a moment.");
+    if (res.status === 402) throw new Error("AI credits are exhausted for this workspace.");
+    throw new Error("The game generator is unavailable right now.");
+  }
+
+  const payload = (await res.json()) as {
+    choices?: { message?: { content?: string } }[];
+  };
+  const content = payload.choices?.[0]?.message?.content ?? "";
+  try {
+    return JSON.parse(content);
+  } catch {
+    const match = content.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error("The generator returned an unreadable response.");
+    return JSON.parse(match[0]);
+  }
+}
+
 export const generateGame = createServerFn({ method: "POST" })
   .inputValidator((input): z.infer<typeof GenerateGameInput> => GenerateGameInput.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<GeneratedGame> => {
     const key = process.env["LOVABLE_API_KEY"];
-    if (!key) {
-      throw new Error("Missing LOVABLE_API_KEY");
-    }
+    if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
-    const gateway = createLovableAiGatewayProvider(key);
     const topicsText = data.topics.join(", ");
+    const system = `You are an expert curriculum instructional designer. Generate educational game content for ${data.courseCode} (${data.courseName}), unit: ${data.unitTitle}. Topics: ${topicsText}. Content must be factually accurate, aligned to that course's curriculum, age appropriate, and focused on the unit's learning objectives.`;
 
-    const systemPrompt = `You are an expert Ontario curriculum instructional designer. Generate educational game content for ${data.courseCode} (${data.courseName}), unit: ${data.unitTitle}. Topics: ${topicsText}. The content must be accurate for the Ontario curriculum, age-appropriate for K-12, and focused on the unit's learning objectives.`;
+    const raw = await callGateway(key, system, PROMPTS[data.gameType], data.gameType);
 
     if (data.gameType === "quiz") {
-      const { object } = await generateObject({
-        model: gateway("google/gemini-3.7-flash"),
-        schema: GeneratedQuizSchema,
-        system: systemPrompt,
-        prompt: `Create 5 multiple-choice quiz questions for this unit. Each question has exactly 4 options and one correct answer (correctIndex 0-3). Return JSON matching the schema.`,
-      });
-      return { type: "quiz" as const, questions: object.questions };
+      return { type: "quiz", questions: QuizSchema.parse(raw).questions };
     }
-
     if (data.gameType === "matching") {
-      const { object } = await generateObject({
-        model: gateway("google/gemini-3.7-flash"),
-        schema: GeneratedMatchingSchema,
-        system: systemPrompt,
-        prompt: `Create 4 matching pairs for this unit. Each pair has a left term/concept and a right definition/example. Return JSON matching the schema.`,
-      });
-      return { type: "matching" as const, pairs: object.pairs };
+      return { type: "matching", pairs: MatchingSchema.parse(raw).pairs };
     }
-
-    const { object } = await generateObject({
-      model: gateway("google/gemini-3.7-flash"),
-      schema: GeneratedFlashcardsSchema,
-      system: systemPrompt,
-      prompt: `Create 6 flashcards for this unit. Each flashcard has a term and a concise definition. Return JSON matching the schema.`,
-    });
-    return { type: "flashcards" as const, cards: object.cards };
+    return { type: "flashcards", cards: FlashcardsSchema.parse(raw).cards };
   });
