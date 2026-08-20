@@ -76,6 +76,18 @@ export interface EscapeStage {
   hint: string;
 }
 
+export interface WordBuildPuzzle {
+  answer: string;
+  clue: string;
+  bonusLetters?: string[];
+}
+
+export interface BattleshipSet {
+  size: number;
+  ships: { name: string; cells: number[] }[];
+  questions: QuizQuestion[];
+}
+
 
 export const games: Game[] = [
   {
