@@ -36,7 +36,7 @@ function LibraryPage() {
           Game Library
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-          Explore quizzes, matching games, and flashcards built for Ontario courses and units.
+          Quizzes, matching, flashcards, word-building, battleship, lightning rounds and escape rooms — all built for Ontario courses and units.
         </p>
       </section>
 
