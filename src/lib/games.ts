@@ -195,19 +195,118 @@ export const equationStackFlashcards: Flashcard[] = [
   { term: "100 ÷ 25", definition: "4" },
 ];
 
-export function getGameById(id: string): Game | undefined {
-  return games.find((g) => g.id === id);
-}
+export const wordForgePuzzles: WordBuildPuzzle[] = [
+  { answer: "PHOTOSYNTHESIS", clue: "How plants turn light into sugar." },
+  { answer: "EQUATION", clue: "A statement that two expressions are equal." },
+  { answer: "DEMOCRACY", clue: "Government by the people." },
+  { answer: "MOLECULE", clue: "Two or more atoms bonded together." },
+  { answer: "GRAVITY", clue: "The force pulling objects toward each other." },
+];
 
-export function getGameContent(id: string) {
-  switch (id) {
-    case "orbit-match":
-      return { type: "matching" as const, pairs: orbitMatchPairs };
-    case "reaction-lab":
-      return { type: "quiz" as const, questions: reactionLabQuestions };
-    case "equation-stack":
-      return { type: "flashcards" as const, cards: equationStackFlashcards };
-    default:
-      return null;
-  }
+export const conceptFleetSet: BattleshipSet = {
+  size: 5,
+  ships: [
+    { name: "Cell Cruiser", cells: [2, 3] },
+    { name: "Ecosystem Frigate", cells: [11, 16, 21] },
+    { name: "DNA Destroyer", cells: [7, 8, 9] },
+  ],
+  questions: [
+    {
+      question: "Which organelle is the powerhouse of the cell?",
+      options: ["Nucleus", "Mitochondrion", "Ribosome", "Vacuole"],
+      correctIndex: 1,
+    },
+    {
+      question: "What process do plants use to make food?",
+      options: ["Respiration", "Digestion", "Photosynthesis", "Osmosis"],
+      correctIndex: 2,
+    },
+    {
+      question: "DNA is best described as…",
+      options: [
+        "A protein that stores energy",
+        "The molecule carrying genetic instructions",
+        "A type of cell membrane",
+        "A waste product of respiration",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "Which organism is a producer in a food chain?",
+      options: ["Hawk", "Grass", "Fox", "Mushroom"],
+      correctIndex: 1,
+    },
+    {
+      question: "What do we call the variety of life in an ecosystem?",
+      options: ["Biodiversity", "Biomass", "Habitat", "Population"],
+      correctIndex: 0,
+    },
+  ],
+};
+
+export const lightningRoundItems: SpeedItem[] = [
+  {
+    statement: "Confederation created the Dominion of Canada in 1867.",
+    isTrue: true,
+    explanation: "The British North America Act took effect July 1, 1867.",
+  },
+  {
+    statement: "Ottawa was chosen as Canada's capital by Queen Victoria.",
+    isTrue: true,
+    explanation: "She selected Ottawa in 1857.",
+  },
+  {
+    statement: "World War I ended in 1920.",
+    isTrue: false,
+    explanation: "The armistice was signed November 11, 1918.",
+  },
+  {
+    statement: "The Underground Railroad brought freedom seekers into Canada.",
+    isTrue: true,
+    explanation: "Thousands reached Upper Canada before the U.S. Civil War.",
+  },
+  {
+    statement: "Nunavut became a territory in 1949.",
+    isTrue: false,
+    explanation: "Nunavut was created in 1999.",
+  },
+  {
+    statement: "The Great Depression began with the 1929 stock market crash.",
+    isTrue: true,
+    explanation: "Markets collapsed in October 1929.",
+  },
+];
+
+export const escapeLabStages: EscapeStage[] = [
+  {
+    clue: "Lock 1: The pH meter reads 2. What kind of solution is in the beaker?",
+    options: ["Acidic", "Neutral", "Basic", "Saturated"],
+    correctIndex: 0,
+    hint: "pH below 7 means more hydrogen ions.",
+  },
+  {
+    clue: "Lock 2: Which gas is released when magnesium reacts with hydrochloric acid?",
+    options: ["Oxygen", "Hydrogen", "Chlorine", "Nitrogen"],
+    correctIndex: 1,
+    hint: "It goes 'pop' with a lit splint.",
+  },
+  {
+    clue: "Lock 3: The balanced equation 2H₂ + O₂ → ? produces…",
+    options: ["2H₂O", "H₂O₂", "HO₂", "H₄O₂"],
+    correctIndex: 0,
+    hint: "Count atoms on both sides.",
+  },
+  {
+    clue: "Final door: Which lab rule keeps the exit safe?",
+    options: [
+      "Pour waste down the sink",
+      "Leave goggles off to see better",
+      "Know the location of the fire blanket and eyewash",
+      "Taste chemicals to identify them",
+    ],
+    correctIndex: 2,
+    hint: "Safety equipment first.",
+  },
+];
+
 }
