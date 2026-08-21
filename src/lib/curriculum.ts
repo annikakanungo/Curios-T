@@ -4,12 +4,15 @@ export interface OntarioUnit {
   topics: string[];
 }
 
+export type CurriculumSystem = "Ontario" | "IB" | "AP";
+
 export interface OntarioCourse {
   id: string;
   code: string;
   name: string;
   grade: number;
   subject: string;
+  system?: CurriculumSystem;
   units: OntarioUnit[];
 }
 
