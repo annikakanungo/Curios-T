@@ -8,7 +8,16 @@ const GenerateGameInput = z.object({
   unitTitle: z.string(),
   topics: z.array(z.string()),
   gameType: z.enum(["quiz", "matching", "flashcards"]),
+  difficulty: z.enum(["intro", "standard", "challenge", "exam"]).default("standard"),
+  objectives: z.string().max(500).default(""),
 });
+
+const DIFFICULTY_GUIDE: Record<string, string> = {
+  intro: "Introductory level: recall and basic understanding, simple wording, one-step reasoning.",
+  standard: "Standard course level: solid understanding and application, typical classwork difficulty.",
+  challenge: "Challenge level: multi-step reasoning, analysis, and less obvious distractors.",
+  exam: "Exam level: rigorous, exam-style items testing synthesis, evaluation, and precise terminology.",
+};
 
 const QuizSchema = z.object({
   questions: z.array(
@@ -168,7 +177,10 @@ export const generateGame = createServerFn({ method: "POST" })
     if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
     const topicsText = data.topics.join(", ");
-    const system = `You are an expert curriculum instructional designer. Generate educational game content for ${data.courseCode} (${data.courseName}), unit: ${data.unitTitle}. Topics: ${topicsText}. Content must be factually accurate, aligned to that course's curriculum, age appropriate, and focused on the unit's learning objectives.`;
+    const objectivesText = data.objectives.trim()
+      ? `The student's specific learning objectives are: ${data.objectives.trim()}. Every item must target those outcomes.`
+      : "Focus on the unit's core learning objectives.";
+    const system = `You are an expert curriculum instructional designer. Generate educational game content for ${data.courseCode} (${data.courseName}), unit: ${data.unitTitle}. Topics: ${topicsText}. ${DIFFICULTY_GUIDE[data.difficulty]} ${objectivesText} Content must be factually accurate, aligned to that course's curriculum, and age appropriate.`;
 
     const raw = await callGateway(key, system, PROMPTS[data.gameType], data.gameType);
 
