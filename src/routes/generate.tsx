@@ -1,9 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ontarioCourses, getUnitById } from "@/lib/curriculum";
+import {
+  getCoursesBySystem,
+  getCourseById,
+  curriculumSystems,
+  type CurriculumSystem,
+} from "@/lib/curriculum";
 import { generateGame, type GeneratedGame } from "@/lib/games.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -19,12 +25,12 @@ export const Route = createFileRoute("/generate")({
       { title: "Generate a Game — Curios T" },
       {
         name: "description",
-        content: "Pick an Ontario course and unit to generate a custom study game.",
+        content: "Generate Ontario, IB, or AP curriculum study games tuned to difficulty and learning objectives.",
       },
       { property: "og:title", content: "Generate a Game — Curios T" },
       {
         property: "og:description",
-        content: "Pick an Ontario course and unit to generate a custom study game.",
+        content: "Generate Ontario, IB, or AP curriculum study games tuned to difficulty and learning objectives.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -41,8 +47,20 @@ const gameTypeLabels: Record<string, string> = {
 
 const GRADES = ["1","2","3","4","5","6","7","8","9","10","11","12"];
 
+const DIFFICULTIES = [
+  { value: "intro", label: "Intro", hint: "Recall & basics" },
+  { value: "standard", label: "Standard", hint: "Course level" },
+  { value: "challenge", label: "Challenge", hint: "Multi-step" },
+  { value: "exam", label: "Exam", hint: "Exam rigour" },
+] as const;
+
+type Difficulty = (typeof DIFFICULTIES)[number]["value"];
+
 function GeneratePage() {
   const [mode, setMode] = useState<"course" | "topic">("course");
+  const [system, setSystem] = useState<CurriculumSystem>("Ontario");
+  const [difficulty, setDifficulty] = useState<Difficulty>("standard");
+  const [objectives, setObjectives] = useState("");
   const [courseId, setCourseId] = useState("");
   const [unitId, setUnitId] = useState("");
   const [grade, setGrade] = useState("");
@@ -53,8 +71,9 @@ function GeneratePage() {
   const [sourceLabel, setSourceLabel] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const course = ontarioCourses.find((c) => c.id === courseId);
-  const unit = course && getUnitById(course.id, unitId);
+  const courses = getCoursesBySystem(system);
+  const course = getCourseById(courseId);
+  const unit = course?.units.find((u) => u.id === unitId);
 
   const topicReady = grade !== "" && subject.trim() !== "" && section.trim() !== "";
   const canGenerate = mode === "course" ? Boolean(unit) : topicReady;
@@ -67,10 +86,12 @@ function GeneratePage() {
         mode === "course" && course && unit
           ? {
               courseCode: course.code,
-              courseName: course.name,
+              courseName: `${system} — ${course.name}`,
               unitTitle: unit.title,
               topics: unit.topics,
               gameType,
+              difficulty,
+              objectives,
             }
           : {
               courseCode: `Grade ${grade}`,
@@ -78,13 +99,15 @@ function GeneratePage() {
               unitTitle: section.trim(),
               topics: [section.trim(), subject.trim()],
               gameType,
+              difficulty,
+              objectives,
             };
 
       const result = await generateGame({ data: payload });
       setGenerated(result);
       setSourceLabel(
         mode === "course"
-          ? `${course?.code} — ${unit?.title}`
+          ? `${system} · ${course?.code} — ${unit?.title}`
           : `Grade ${grade} ${subject.trim()} — ${section.trim()}`,
       );
       toast.success("Game generated!");
@@ -103,15 +126,16 @@ function GeneratePage() {
           Generate a Study Game
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Pick an Ontario course and unit, or just type your grade, subject, and topic — Curios T
-          builds a custom quiz, matching game, or flashcard deck from it.
+          Pick an Ontario, IB, or AP course and unit — or just type your grade, subject, and topic.
+          Tune the difficulty and learning objectives, and Curios T builds a custom quiz, matching
+          game, or flashcard deck from it.
         </p>
       </section>
 
       <div className="rounded-[32px] border border-foreground/5 bg-white p-8 shadow-sm">
         <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-background/60 p-1">
           {([
-            ["course", "Ontario course"],
+            ["course", "Course catalogue"],
             ["topic", "Grade + topic"],
           ] as const).map(([value, label]) => (
             <button
@@ -130,15 +154,38 @@ function GeneratePage() {
           {mode === "course" ? (
             <>
               <div>
+                <label className="mb-2 block text-sm font-semibold">Curriculum system</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {curriculumSystems.map((sys) => (
+                    <button
+                      key={sys}
+                      onClick={() => {
+                        setSystem(sys);
+                        setCourseId("");
+                        setUnitId("");
+                      }}
+                      className={`rounded-xl border-2 px-4 py-2.5 text-sm font-bold transition-all ${
+                        system === sys
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "border-foreground/5 bg-background/50 hover:border-primary"
+                      }`}
+                    >
+                      {sys}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
                 <label className="mb-2 block text-sm font-semibold">Course</label>
                 <Select value={courseId} onValueChange={(v) => { setCourseId(v); setUnitId(""); }}>
                   <SelectTrigger className="rounded-xl">
                     <SelectValue placeholder="Select a course" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ontarioCourses.map((c) => (
+                    {courses.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
-                        {c.code} — {c.name} (Grade {c.grade})
+                        {c.code} — {c.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -206,6 +253,46 @@ function GeneratePage() {
               </div>
             </>
           )}
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold">Difficulty</label>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {DIFFICULTIES.map((d) => (
+                <button
+                  key={d.value}
+                  onClick={() => setDifficulty(d.value)}
+                  className={`rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-all ${
+                    difficulty === d.value
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-foreground/5 bg-background/50 hover:border-primary"
+                  }`}
+                >
+                  <span className="block">{d.label}</span>
+                  <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {d.hint}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="objectives" className="mb-2 block text-sm font-semibold">
+              Learning objectives <span className="text-muted-foreground">(optional)</span>
+            </label>
+            <Textarea
+              id="objectives"
+              value={objectives}
+              onChange={(e) => setObjectives(e.target.value)}
+              maxLength={500}
+              rows={3}
+              placeholder="e.g. Solve quadratics by factoring and identify the vertex from factored form"
+              className="rounded-xl"
+            />
+            <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+              {objectives.length}/500 — every question will target these outcomes.
+            </p>
+          </div>
 
           <div>
             <label className="mb-2 block text-sm font-semibold">Game Type</label>
