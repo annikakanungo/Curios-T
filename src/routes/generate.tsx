@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { decodeGenerationError, type GenerationErrorCode } from "@/lib/game-generation";
+import { OBJECTIVE_TEMPLATES } from "@/lib/objective-templates";
 import {
   getCoursesBySystem,
   getCourseById,
@@ -56,6 +58,66 @@ const DIFFICULTIES = [
 
 type Difficulty = (typeof DIFFICULTIES)[number]["value"];
 
+const CREDIT_KEY = "curiost.creditState";
+
+type CreditState = "ok" | "low" | "exhausted";
+
+function readCreditState(): CreditState {
+  if (typeof window === "undefined") return "ok";
+  const raw = window.localStorage.getItem(CREDIT_KEY);
+  return raw === "low" || raw === "exhausted" ? raw : "ok";
+}
+
+function writeCreditState(state: CreditState) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(CREDIT_KEY, state);
+}
+
+function CreditNotice({
+  state,
+  onRecheck,
+}: {
+  state: Exclude<CreditState, "ok">;
+  onRecheck: () => void;
+}) {
+  const exhausted = state === "exhausted";
+  return (
+    <div
+      role="alert"
+      className={`mb-6 rounded-2xl border-2 p-5 ${
+        exhausted ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
+      }`}
+    >
+      <p className="text-sm font-extrabold tracking-tight">
+        {exhausted ? "AI credits used up" : "AI credits are running low"}
+      </p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {exhausted
+          ? "Generation is paused until more credits are added to this workspace. Add credits or upgrade your plan to keep building games."
+          : "The generator hit its usage limit for now. You can wait a moment and retry, or top up credits to keep generating without pauses."}
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button asChild className="rounded-full px-5 text-sm font-bold">
+          <a
+            href="https://lovable.dev/settings/workspace"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Add credits / upgrade
+          </a>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={onRecheck}
+          className="rounded-full px-5 text-sm font-bold"
+        >
+          I&apos;ve topped up — try again
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function GeneratePage() {
   const [mode, setMode] = useState<"course" | "topic">("course");
   const [system, setSystem] = useState<CurriculumSystem>("Ontario");
@@ -70,13 +132,33 @@ function GeneratePage() {
   const [generated, setGenerated] = useState<GeneratedGame | null>(null);
   const [sourceLabel, setSourceLabel] = useState("");
   const [loading, setLoading] = useState(false);
+  const [creditState, setCreditState] = useState<CreditState>("ok");
+
+  useEffect(() => {
+    setCreditState(readCreditState());
+  }, []);
 
   const courses = getCoursesBySystem(system);
   const course = getCourseById(courseId);
   const unit = course?.units.find((u) => u.id === unitId);
 
   const topicReady = grade !== "" && subject.trim() !== "" && section.trim() !== "";
-  const canGenerate = mode === "course" ? Boolean(unit) : topicReady;
+  const creditsBlocked = creditState !== "ok";
+  const inputsReady = mode === "course" ? Boolean(unit) : topicReady;
+  const canGenerate = inputsReady && !creditsBlocked;
+
+  const applyTemplate = (text: string) => {
+    setObjectives((prev) => {
+      if (!prev.trim()) return text.slice(0, 500);
+      if (prev.includes(text)) return prev;
+      return `${prev.trim()} ${text}`.slice(0, 500);
+    });
+  };
+
+  const clearCreditBlock = () => {
+    writeCreditState("ok");
+    setCreditState("ok");
+  };
 
   const handleGenerate = async () => {
     if (!canGenerate) return;
@@ -111,9 +193,28 @@ function GeneratePage() {
           : `Grade ${grade} ${subject.trim()} — ${section.trim()}`,
       );
       toast.success("Game generated!");
+      if (creditState !== "ok") clearCreditBlock();
     } catch (err) {
       console.error(err);
-      toast.error("Could not generate the game. Please try again.");
+      const { code, message } = decodeGenerationError(
+        err instanceof Error ? err.message : String(err),
+      );
+      const nextState: Record<GenerationErrorCode, CreditState> = {
+        CREDITS_EXHAUSTED: "exhausted",
+        RATE_LIMITED: "low",
+        UNAVAILABLE: "ok",
+        BAD_RESPONSE: "ok",
+      };
+      const state = nextState[code];
+      if (state !== "ok") {
+        writeCreditState(state);
+        setCreditState(state);
+        toast.error(
+          state === "exhausted" ? "AI credits are used up." : "Credit limit reached — try again shortly.",
+        );
+      } else {
+        toast.error(message || "Could not generate the game. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -133,6 +234,9 @@ function GeneratePage() {
       </section>
 
       <div className="rounded-[32px] border border-foreground/5 bg-white p-8 shadow-sm">
+        {creditState !== "ok" && (
+          <CreditNotice state={creditState} onRecheck={clearCreditBlock} />
+        )}
         <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-background/60 p-1">
           {([
             ["course", "Course catalogue"],
@@ -292,6 +396,37 @@ function GeneratePage() {
             <p className="mt-1 font-mono text-[11px] text-muted-foreground">
               {objectives.length}/500 — every question will target these outcomes.
             </p>
+
+            <div className="mt-3">
+              <p className="mb-2 font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                Quick templates
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {OBJECTIVE_TEMPLATES.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => applyTemplate(t.text)}
+                    title={t.text}
+                    className="rounded-full border border-foreground/10 bg-background/60 px-3 py-1.5 text-xs font-bold transition-colors hover:border-primary hover:text-primary"
+                  >
+                    {t.label}
+                    <span className="ml-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                      {t.subject}
+                    </span>
+                  </button>
+                ))}
+                {objectives && (
+                  <button
+                    type="button"
+                    onClick={() => setObjectives("")}
+                    className="rounded-full px-3 py-1.5 text-xs font-bold text-muted-foreground underline-offset-4 hover:underline"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           <div>
@@ -318,7 +453,11 @@ function GeneratePage() {
             disabled={!canGenerate || loading}
             className="w-full rounded-2xl py-6 text-lg font-extrabold"
           >
-            {loading ? "Generating..." : "Generate Game"}
+            {loading
+              ? "Generating..."
+              : creditsBlocked
+                ? "Generation paused — add credits"
+                : "Generate Game"}
           </Button>
         </div>
       </div>

@@ -173,7 +173,13 @@ function Navbar() {
             >
               Prizes
             </Link>
-
+            <Link
+              to="/progress"
+              activeProps={{ className: "text-foreground" }}
+              className="transition-colors hover:text-foreground"
+            >
+              Progress
+            </Link>
           </div>
         </div>
         <div className="flex items-center gap-4">
