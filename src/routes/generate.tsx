@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { decodeGenerationError, type GenerationErrorCode } from "@/lib/game-generation";
+import { OBJECTIVE_TEMPLATES } from "@/lib/objective-templates";
 import {
   getCoursesBySystem,
   getCourseById,
@@ -55,6 +57,66 @@ const DIFFICULTIES = [
 ] as const;
 
 type Difficulty = (typeof DIFFICULTIES)[number]["value"];
+
+const CREDIT_KEY = "curiost.creditState";
+
+type CreditState = "ok" | "low" | "exhausted";
+
+function readCreditState(): CreditState {
+  if (typeof window === "undefined") return "ok";
+  const raw = window.localStorage.getItem(CREDIT_KEY);
+  return raw === "low" || raw === "exhausted" ? raw : "ok";
+}
+
+function writeCreditState(state: CreditState) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(CREDIT_KEY, state);
+}
+
+function CreditNotice({
+  state,
+  onRecheck,
+}: {
+  state: Exclude<CreditState, "ok">;
+  onRecheck: () => void;
+}) {
+  const exhausted = state === "exhausted";
+  return (
+    <div
+      role="alert"
+      className={`mb-6 rounded-2xl border-2 p-5 ${
+        exhausted ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"
+      }`}
+    >
+      <p className="text-sm font-extrabold tracking-tight">
+        {exhausted ? "AI credits used up" : "AI credits are running low"}
+      </p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {exhausted
+          ? "Generation is paused until more credits are added to this workspace. Add credits or upgrade your plan to keep building games."
+          : "The generator hit its usage limit for now. You can wait a moment and retry, or top up credits to keep generating without pauses."}
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button asChild className="rounded-full px-5 text-sm font-bold">
+          <a
+            href="https://lovable.dev/settings/workspace"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Add credits / upgrade
+          </a>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={onRecheck}
+          className="rounded-full px-5 text-sm font-bold"
+        >
+          I&apos;ve topped up — try again
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function GeneratePage() {
   const [mode, setMode] = useState<"course" | "topic">("course");
