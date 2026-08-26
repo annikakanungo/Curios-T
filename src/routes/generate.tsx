@@ -143,7 +143,22 @@ function GeneratePage() {
   const unit = course?.units.find((u) => u.id === unitId);
 
   const topicReady = grade !== "" && subject.trim() !== "" && section.trim() !== "";
-  const canGenerate = mode === "course" ? Boolean(unit) : topicReady;
+  const creditsBlocked = creditState !== "ok";
+  const inputsReady = mode === "course" ? Boolean(unit) : topicReady;
+  const canGenerate = inputsReady && !creditsBlocked;
+
+  const applyTemplate = (text: string) => {
+    setObjectives((prev) => {
+      if (!prev.trim()) return text.slice(0, 500);
+      if (prev.includes(text)) return prev;
+      return `${prev.trim()} ${text}`.slice(0, 500);
+    });
+  };
+
+  const clearCreditBlock = () => {
+    writeCreditState("ok");
+    setCreditState("ok");
+  };
 
   const handleGenerate = async () => {
     if (!canGenerate) return;
