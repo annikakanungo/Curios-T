@@ -143,7 +143,7 @@ export function decodeGenerationError(message: string): {
     /^(CREDITS_EXHAUSTED|RATE_LIMITED|UNAVAILABLE|BAD_RESPONSE): ([\s\S]*)$/,
   );
   if (!match) return { code: "UNAVAILABLE", message };
-  return { code: match[1] as GenerationErrorCode, message: match[2] };
+  return { code: match[1] as GenerationErrorCode, message: match[2] ?? message };
 }
 
 export function buildSystemPrompt(data: GenerateGameInputType): string {
