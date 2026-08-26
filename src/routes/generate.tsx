@@ -132,6 +132,11 @@ function GeneratePage() {
   const [generated, setGenerated] = useState<GeneratedGame | null>(null);
   const [sourceLabel, setSourceLabel] = useState("");
   const [loading, setLoading] = useState(false);
+  const [creditState, setCreditState] = useState<CreditState>("ok");
+
+  useEffect(() => {
+    setCreditState(readCreditState());
+  }, []);
 
   const courses = getCoursesBySystem(system);
   const course = getCourseById(courseId);
