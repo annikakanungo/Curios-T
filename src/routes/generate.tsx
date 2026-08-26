@@ -234,6 +234,9 @@ function GeneratePage() {
       </section>
 
       <div className="rounded-[32px] border border-foreground/5 bg-white p-8 shadow-sm">
+        {creditState !== "ok" && (
+          <CreditNotice state={creditState} onRecheck={clearCreditBlock} />
+        )}
         <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-background/60 p-1">
           {([
             ["course", "Course catalogue"],
@@ -393,6 +396,37 @@ function GeneratePage() {
             <p className="mt-1 font-mono text-[11px] text-muted-foreground">
               {objectives.length}/500 — every question will target these outcomes.
             </p>
+
+            <div className="mt-3">
+              <p className="mb-2 font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                Quick templates
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {OBJECTIVE_TEMPLATES.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => applyTemplate(t.text)}
+                    title={t.text}
+                    className="rounded-full border border-foreground/10 bg-background/60 px-3 py-1.5 text-xs font-bold transition-colors hover:border-primary hover:text-primary"
+                  >
+                    {t.label}
+                    <span className="ml-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                      {t.subject}
+                    </span>
+                  </button>
+                ))}
+                {objectives && (
+                  <button
+                    type="button"
+                    onClick={() => setObjectives("")}
+                    className="rounded-full px-3 py-1.5 text-xs font-bold text-muted-foreground underline-offset-4 hover:underline"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           <div>
