@@ -453,7 +453,11 @@ function GeneratePage() {
             disabled={!canGenerate || loading}
             className="w-full rounded-2xl py-6 text-lg font-extrabold"
           >
-            {loading ? "Generating..." : "Generate Game"}
+            {loading
+              ? "Generating..."
+              : creditsBlocked
+                ? "Generation paused — add credits"
+                : "Generate Game"}
           </Button>
         </div>
       </div>
