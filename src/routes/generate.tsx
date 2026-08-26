@@ -193,9 +193,28 @@ function GeneratePage() {
           : `Grade ${grade} ${subject.trim()} — ${section.trim()}`,
       );
       toast.success("Game generated!");
+      if (creditState !== "ok") clearCreditBlock();
     } catch (err) {
       console.error(err);
-      toast.error("Could not generate the game. Please try again.");
+      const { code, message } = decodeGenerationError(
+        err instanceof Error ? err.message : String(err),
+      );
+      const nextState: Record<GenerationErrorCode, CreditState> = {
+        CREDITS_EXHAUSTED: "exhausted",
+        RATE_LIMITED: "low",
+        UNAVAILABLE: "ok",
+        BAD_RESPONSE: "ok",
+      };
+      const state = nextState[code];
+      if (state !== "ok") {
+        writeCreditState(state);
+        setCreditState(state);
+        toast.error(
+          state === "exhausted" ? "AI credits are used up." : "Credit limit reached — try again shortly.",
+        );
+      } else {
+        toast.error(message || "Could not generate the game. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
