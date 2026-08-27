@@ -41,11 +41,31 @@ export const Route = createFileRoute("/generate")({
   component: GeneratePage,
 });
 
-const gameTypeLabels: Record<string, string> = {
+type GeneratedGameType = NonNullable<GeneratedGame>["type"];
+
+const gameTypeLabels: Record<GeneratedGameType, string> = {
   quiz: "Multiple-Choice Quiz",
   matching: "Matching Pairs",
   flashcards: "Flashcards",
+  speed: "Lightning Round",
+  scramble: "Word Scramble",
+  sort: "Sort Frenzy",
+  escape: "Escape Room",
+  wordbuild: "Word Forge",
+  battleship: "Concept Fleet",
 };
+
+const GAME_TYPE_OPTIONS: { value: GeneratedGameType; emoji: string; hint: string }[] = [
+  { value: "quiz", emoji: "❓", hint: "4-option questions" },
+  { value: "matching", emoji: "🔗", hint: "Pair terms & defs" },
+  { value: "flashcards", emoji: "🃏", hint: "Flip & review" },
+  { value: "speed", emoji: "⚡", hint: "45s true/false" },
+  { value: "scramble", emoji: "🔀", hint: "Unscramble terms" },
+  { value: "sort", emoji: "🗂️", hint: "Sort into buckets" },
+  { value: "escape", emoji: "🚪", hint: "Crack clue locks" },
+  { value: "wordbuild", emoji: "🔤", hint: "Scrabble tiles" },
+  { value: "battleship", emoji: "🚢", hint: "Quiz + grid battle" },
+];
 
 const GRADES = ["1","2","3","4","5","6","7","8","9","10","11","12"];
 
@@ -128,7 +148,7 @@ function GeneratePage() {
   const [grade, setGrade] = useState("");
   const [subject, setSubject] = useState("");
   const [section, setSection] = useState("");
-  const [gameType, setGameType] = useState<"quiz" | "matching" | "flashcards">("quiz");
+  const [gameType, setGameType] = useState<GeneratedGameType>("quiz");
   const [generated, setGenerated] = useState<GeneratedGame | null>(null);
   const [sourceLabel, setSourceLabel] = useState("");
   const [loading, setLoading] = useState(false);
