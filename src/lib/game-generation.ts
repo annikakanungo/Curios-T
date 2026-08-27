@@ -68,10 +68,69 @@ export const FlashcardsSchema = z.object({
   ),
 });
 
+export const SpeedSchema = z.object({
+  items: z.array(
+    z.object({
+      statement: z.string(),
+      isTrue: z.boolean(),
+      explanation: z.string(),
+    }),
+  ),
+});
+
+export const ScrambleSchema = z.object({
+  words: z.array(
+    z.object({
+      word: z.string(),
+      hint: z.string(),
+    }),
+  ),
+});
+
+export const SortSchema = z.object({
+  categories: z.array(z.string()),
+  items: z.array(
+    z.object({
+      label: z.string(),
+      category: z.string(),
+    }),
+  ),
+});
+
+export const EscapeSchema = z.object({
+  stages: z.array(
+    z.object({
+      clue: z.string(),
+      options: z.array(z.string()),
+      correctIndex: z.number(),
+      hint: z.string(),
+    }),
+  ),
+});
+
+export const WordBuildSchema = z.object({
+  puzzles: z.array(
+    z.object({
+      answer: z.string(),
+      clue: z.string(),
+    }),
+  ),
+});
+
+export const BattleshipSchema = z.object({
+  questions: QuizSchema.shape.questions,
+});
+
 export type GeneratedGame =
   | { type: "quiz"; questions: QuizQuestion[] }
   | { type: "matching"; pairs: MatchingPair[] }
-  | { type: "flashcards"; cards: Flashcard[] };
+  | { type: "flashcards"; cards: Flashcard[] }
+  | { type: "speed"; items: SpeedItem[] }
+  | { type: "scramble"; words: ScrambleWord[] }
+  | { type: "sort"; set: SortBucketSet }
+  | { type: "escape"; stages: EscapeStage[] }
+  | { type: "wordbuild"; puzzles: WordBuildPuzzle[] }
+  | { type: "battleship"; questions: QuizQuestion[] };
 
 export const JSON_SCHEMAS = {
   quiz: {
