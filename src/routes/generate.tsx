@@ -451,18 +451,24 @@ function GeneratePage() {
 
           <div>
             <label className="mb-2 block text-sm font-semibold">Game Type</label>
-            <div className="grid grid-cols-3 gap-3">
-              {(["quiz", "matching", "flashcards"] as const).map((type) => (
+            <div className="grid grid-cols-3 gap-2">
+              {GAME_TYPE_OPTIONS.map((opt) => (
                 <button
-                  key={type}
-                  onClick={() => setGameType(type)}
-                  className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
-                    gameType === type
-                      ? "border-primary bg-primary/5 text-primary"
+                  key={opt.value}
+                  onClick={() => setGameType(opt.value)}
+                  className={`rounded-xl border-2 px-3 py-3 text-left transition-all ${
+                    gameType === opt.value
+                      ? "border-primary bg-primary/5"
                       : "border-foreground/5 bg-background/50 hover:border-primary"
                   }`}
                 >
-                  {gameTypeLabels[type]}
+                  <span className="block text-lg">{opt.emoji}</span>
+                  <span className="mt-1 block text-xs font-bold">
+                    {gameTypeLabels[opt.value]}
+                  </span>
+                  <span className="block font-mono text-[10px] text-muted-foreground">
+                    {opt.hint}
+                  </span>
                 </button>
               ))}
             </div>
