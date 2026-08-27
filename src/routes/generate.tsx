@@ -9,6 +9,17 @@ import {
   type CurriculumSystem,
 } from "@/lib/curriculum";
 import { generateGame, type GeneratedGame } from "@/lib/games.functions";
+import {
+  QuizGame,
+  MatchingGame,
+  FlashcardGame,
+  SpeedGame,
+  ScrambleGame,
+  SortGame,
+  EscapeGame,
+  WordBuildGame,
+  BattleshipGame,
+} from "@/components/games/GameShells";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,11 +52,31 @@ export const Route = createFileRoute("/generate")({
   component: GeneratePage,
 });
 
-const gameTypeLabels: Record<string, string> = {
+type GeneratedGameType = NonNullable<GeneratedGame>["type"];
+
+const gameTypeLabels: Record<GeneratedGameType, string> = {
   quiz: "Multiple-Choice Quiz",
   matching: "Matching Pairs",
   flashcards: "Flashcards",
+  speed: "Lightning Round",
+  scramble: "Word Scramble",
+  sort: "Sort Frenzy",
+  escape: "Escape Room",
+  wordbuild: "Word Forge",
+  battleship: "Concept Fleet",
 };
+
+const GAME_TYPE_OPTIONS: { value: GeneratedGameType; emoji: string; hint: string }[] = [
+  { value: "quiz", emoji: "❓", hint: "4-option questions" },
+  { value: "matching", emoji: "🔗", hint: "Pair terms & defs" },
+  { value: "flashcards", emoji: "🃏", hint: "Flip & review" },
+  { value: "speed", emoji: "⚡", hint: "45s true/false" },
+  { value: "scramble", emoji: "🔀", hint: "Unscramble terms" },
+  { value: "sort", emoji: "🗂️", hint: "Sort into buckets" },
+  { value: "escape", emoji: "🚪", hint: "Crack clue locks" },
+  { value: "wordbuild", emoji: "🔤", hint: "Scrabble tiles" },
+  { value: "battleship", emoji: "🚢", hint: "Quiz + grid battle" },
+];
 
 const GRADES = ["1","2","3","4","5","6","7","8","9","10","11","12"];
 
@@ -57,6 +88,12 @@ const DIFFICULTIES = [
 ] as const;
 
 type Difficulty = (typeof DIFFICULTIES)[number]["value"];
+
+const generatedShips = [
+  { name: "Scout", cells: [2, 3] },
+  { name: "Cruiser", cells: [11, 16, 21] },
+  { name: "Flagship", cells: [7, 8, 9] },
+];
 
 const CREDIT_KEY = "curiost.creditState";
 
@@ -128,7 +165,7 @@ function GeneratePage() {
   const [grade, setGrade] = useState("");
   const [subject, setSubject] = useState("");
   const [section, setSection] = useState("");
-  const [gameType, setGameType] = useState<"quiz" | "matching" | "flashcards">("quiz");
+  const [gameType, setGameType] = useState<GeneratedGameType>("quiz");
   const [generated, setGenerated] = useState<GeneratedGame | null>(null);
   const [sourceLabel, setSourceLabel] = useState("");
   const [loading, setLoading] = useState(false);
@@ -431,18 +468,24 @@ function GeneratePage() {
 
           <div>
             <label className="mb-2 block text-sm font-semibold">Game Type</label>
-            <div className="grid grid-cols-3 gap-3">
-              {(["quiz", "matching", "flashcards"] as const).map((type) => (
+            <div className="grid grid-cols-3 gap-2">
+              {GAME_TYPE_OPTIONS.map((opt) => (
                 <button
-                  key={type}
-                  onClick={() => setGameType(type)}
-                  className={`rounded-xl border-2 px-4 py-3 text-sm font-semibold transition-all ${
-                    gameType === type
-                      ? "border-primary bg-primary/5 text-primary"
+                  key={opt.value}
+                  onClick={() => setGameType(opt.value)}
+                  className={`rounded-xl border-2 px-3 py-3 text-left transition-all ${
+                    gameType === opt.value
+                      ? "border-primary bg-primary/5"
                       : "border-foreground/5 bg-background/50 hover:border-primary"
                   }`}
                 >
-                  {gameTypeLabels[type]}
+                  <span className="block text-lg">{opt.emoji}</span>
+                  <span className="mt-1 block text-xs font-bold">
+                    {gameTypeLabels[opt.value]}
+                  </span>
+                  <span className="block font-mono text-[10px] text-muted-foreground">
+                    {opt.hint}
+                  </span>
                 </button>
               ))}
             </div>
@@ -472,70 +515,24 @@ function GeneratePage() {
             {sourceLabel}
           </p>
 
-          {generated.type === "quiz" && (
-            <GeneratedQuizPreview questions={generated.questions} />
-          )}
-          {generated.type === "matching" && (
-            <GeneratedMatchingPreview pairs={generated.pairs} />
-          )}
-          {generated.type === "flashcards" && (
-            <GeneratedFlashcardsPreview cards={generated.cards} />
-          )}
+          <div className="mt-6">
+            {generated.type === "quiz" && <QuizGame questions={generated.questions} />}
+            {generated.type === "matching" && <MatchingGame pairs={generated.pairs} />}
+            {generated.type === "flashcards" && <FlashcardGame cards={generated.cards} />}
+            {generated.type === "speed" && <SpeedGame items={generated.items} />}
+            {generated.type === "scramble" && <ScrambleGame words={generated.words} />}
+            {generated.type === "sort" && <SortGame set={generated.set} />}
+            {generated.type === "escape" && <EscapeGame stages={generated.stages} />}
+            {generated.type === "wordbuild" && <WordBuildGame puzzles={generated.puzzles} />}
+            {generated.type === "battleship" && (
+              <BattleshipGame
+                set={{ size: 5, ships: generatedShips, questions: generated.questions }}
+              />
+            )}
+          </div>
         </div>
       )}
     </main>
   );
 }
 
-function GeneratedQuizPreview({ questions }: { questions: { question: string; options: string[]; correctIndex: number }[] }) {
-  return (
-    <div className="mt-6 space-y-6">
-      {questions.map((q, i) => (
-        <div key={i} className="rounded-2xl border border-foreground/5 bg-background/50 p-5">
-          <p className="font-semibold">
-            {i + 1}. {q.question}
-          </p>
-          <ul className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-            {q.options.map((opt, j) => (
-              <li
-                key={j}
-                className={`rounded-lg px-3 py-2 text-sm ${
-                  j === q.correctIndex ? "bg-green-50 font-semibold text-green-900" : "bg-white"
-                }`}
-              >
-                {String.fromCharCode(65 + j)}. {opt}
-                {j === q.correctIndex && <span className="ml-2">✓</span>}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function GeneratedMatchingPreview({ pairs }: { pairs: { id: string; left: string; right: string }[] }) {
-  return (
-    <div className="mt-6 grid grid-cols-2 gap-4">
-      {pairs.map((p) => (
-        <div key={p.id} className="col-span-2 rounded-2xl border border-foreground/5 bg-background/50 p-4 md:col-span-1">
-          <p className="font-semibold">{p.left}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{p.right}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function GeneratedFlashcardsPreview({ cards }: { cards: { term: string; definition: string }[] }) {
-  return (
-    <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {cards.map((c, i) => (
-        <div key={i} className="rounded-2xl border border-foreground/5 bg-background/50 p-5">
-          <p className="font-semibold">{c.term}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{c.definition}</p>
-        </div>
-      ))}
-    </div>
-  );
-}

@@ -1,12 +1,31 @@
 import { z } from "zod";
-import type { QuizQuestion, MatchingPair, Flashcard } from "./games";
+import type {
+  QuizQuestion,
+  MatchingPair,
+  Flashcard,
+  SpeedItem,
+  ScrambleWord,
+  SortBucketSet,
+  EscapeStage,
+  WordBuildPuzzle,
+} from "./games";
 
 export const GenerateGameInput = z.object({
   courseCode: z.string(),
   courseName: z.string(),
   unitTitle: z.string(),
   topics: z.array(z.string()),
-  gameType: z.enum(["quiz", "matching", "flashcards"]),
+  gameType: z.enum([
+    "quiz",
+    "matching",
+    "flashcards",
+    "speed",
+    "scramble",
+    "sort",
+    "escape",
+    "wordbuild",
+    "battleship",
+  ]),
   difficulty: z.enum(["intro", "standard", "challenge", "exam"]).default("standard"),
   objectives: z.string().max(500).default(""),
 });
@@ -49,10 +68,69 @@ export const FlashcardsSchema = z.object({
   ),
 });
 
+export const SpeedSchema = z.object({
+  items: z.array(
+    z.object({
+      statement: z.string(),
+      isTrue: z.boolean(),
+      explanation: z.string(),
+    }),
+  ),
+});
+
+export const ScrambleSchema = z.object({
+  words: z.array(
+    z.object({
+      word: z.string(),
+      hint: z.string(),
+    }),
+  ),
+});
+
+export const SortSchema = z.object({
+  categories: z.array(z.string()),
+  items: z.array(
+    z.object({
+      label: z.string(),
+      category: z.string(),
+    }),
+  ),
+});
+
+export const EscapeSchema = z.object({
+  stages: z.array(
+    z.object({
+      clue: z.string(),
+      options: z.array(z.string()),
+      correctIndex: z.number(),
+      hint: z.string(),
+    }),
+  ),
+});
+
+export const WordBuildSchema = z.object({
+  puzzles: z.array(
+    z.object({
+      answer: z.string(),
+      clue: z.string(),
+    }),
+  ),
+});
+
+export const BattleshipSchema = z.object({
+  questions: QuizSchema.shape.questions,
+});
+
 export type GeneratedGame =
   | { type: "quiz"; questions: QuizQuestion[] }
   | { type: "matching"; pairs: MatchingPair[] }
-  | { type: "flashcards"; cards: Flashcard[] };
+  | { type: "flashcards"; cards: Flashcard[] }
+  | { type: "speed"; items: SpeedItem[] }
+  | { type: "scramble"; words: ScrambleWord[] }
+  | { type: "sort"; set: SortBucketSet }
+  | { type: "escape"; stages: EscapeStage[] }
+  | { type: "wordbuild"; puzzles: WordBuildPuzzle[] }
+  | { type: "battleship"; questions: QuizQuestion[] };
 
 export const JSON_SCHEMAS = {
   quiz: {
@@ -114,6 +192,125 @@ export const JSON_SCHEMAS = {
       },
     },
   },
+  speed: {
+    type: "object",
+    additionalProperties: false,
+    required: ["items"],
+    properties: {
+      items: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["statement", "isTrue", "explanation"],
+          properties: {
+            statement: { type: "string" },
+            isTrue: { type: "boolean" },
+            explanation: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  scramble: {
+    type: "object",
+    additionalProperties: false,
+    required: ["words"],
+    properties: {
+      words: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["word", "hint"],
+          properties: {
+            word: { type: "string" },
+            hint: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  sort: {
+    type: "object",
+    additionalProperties: false,
+    required: ["categories", "items"],
+    properties: {
+      categories: { type: "array", items: { type: "string" } },
+      items: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["label", "category"],
+          properties: {
+            label: { type: "string" },
+            category: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  escape: {
+    type: "object",
+    additionalProperties: false,
+    required: ["stages"],
+    properties: {
+      stages: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["clue", "options", "correctIndex", "hint"],
+          properties: {
+            clue: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            correctIndex: { type: "integer" },
+            hint: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  wordbuild: {
+    type: "object",
+    additionalProperties: false,
+    required: ["puzzles"],
+    properties: {
+      puzzles: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["answer", "clue"],
+          properties: {
+            answer: { type: "string" },
+            clue: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  battleship: {
+    type: "object",
+    additionalProperties: false,
+    required: ["questions"],
+    properties: {
+      questions: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["question", "options", "correctIndex"],
+          properties: {
+            question: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            correctIndex: { type: "integer" },
+          },
+        },
+      },
+    },
+  },
 } as const;
 
 export const PROMPTS = {
@@ -122,6 +319,18 @@ export const PROMPTS = {
     "Create 4 matching pairs for this unit. Each pair has an id, a left term/concept and a right definition/example. Return JSON.",
   flashcards:
     "Create 6 flashcards for this unit. Each flashcard has a term and a concise definition. Return JSON.",
+  speed:
+    "Create 8 rapid-fire true/false statements for this unit. Each item has a statement, isTrue boolean, and a one-sentence explanation. Mix true and false. Return JSON.",
+  scramble:
+    "Create 6 key terms from this unit to unscramble. Each word must be a single word in UPPERCASE letters only (no spaces or hyphens), with a short hint. Return JSON.",
+  sort:
+    "Create a sorting game for this unit with exactly 3 categories and 9 items (3 per category). Each item has a label and a category that exactly matches one of the categories. Return JSON.",
+  escape:
+    "Create a 4-stage escape-room puzzle chain for this unit. Each stage has a clue framed as a lock, exactly 4 options, one correctIndex between 0 and 3, and a hint. Increase difficulty each stage. Return JSON.",
+  wordbuild:
+    "Create 5 word-building puzzles for this unit. Each answer must be a single UPPERCASE word (4-14 letters, no spaces or hyphens) with a clue. Return JSON.",
+  battleship:
+    "Create 8 multiple-choice questions for this unit to power a battleship game. Each question has exactly 4 options and one correctIndex between 0 and 3. Return JSON.",
 } as const;
 
 /** Error codes the client uses to drive credit-aware UX. */
@@ -208,9 +417,38 @@ export function parseGenerated(
   gameType: GenerateGameInputType["gameType"],
   raw: unknown,
 ): GeneratedGame {
-  if (gameType === "quiz") return { type: "quiz", questions: QuizSchema.parse(raw).questions };
-  if (gameType === "matching") return { type: "matching", pairs: MatchingSchema.parse(raw).pairs };
-  return { type: "flashcards", cards: FlashcardsSchema.parse(raw).cards };
+  switch (gameType) {
+    case "quiz":
+      return { type: "quiz", questions: QuizSchema.parse(raw).questions };
+    case "matching":
+      return { type: "matching", pairs: MatchingSchema.parse(raw).pairs };
+    case "flashcards":
+      return { type: "flashcards", cards: FlashcardsSchema.parse(raw).cards };
+    case "speed":
+      return { type: "speed", items: SpeedSchema.parse(raw).items };
+    case "scramble":
+      return {
+        type: "scramble",
+        words: ScrambleSchema.parse(raw).words.map((w) => ({
+          ...w,
+          word: w.word.toUpperCase().replace(/[^A-Z]/g, ""),
+        })),
+      };
+    case "sort":
+      return { type: "sort", set: SortSchema.parse(raw) };
+    case "escape":
+      return { type: "escape", stages: EscapeSchema.parse(raw).stages };
+    case "wordbuild":
+      return {
+        type: "wordbuild",
+        puzzles: WordBuildSchema.parse(raw).puzzles.map((p) => ({
+          ...p,
+          answer: p.answer.toUpperCase(),
+        })),
+      };
+    case "battleship":
+      return { type: "battleship", questions: BattleshipSchema.parse(raw).questions };
+  }
 }
 
 /** One full generation round-trip, shared by the server fn and the smoke tests. */
