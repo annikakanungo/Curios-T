@@ -1,12 +1,31 @@
 import { z } from "zod";
-import type { QuizQuestion, MatchingPair, Flashcard } from "./games";
+import type {
+  QuizQuestion,
+  MatchingPair,
+  Flashcard,
+  SpeedItem,
+  ScrambleWord,
+  SortBucketSet,
+  EscapeStage,
+  WordBuildPuzzle,
+} from "./games";
 
 export const GenerateGameInput = z.object({
   courseCode: z.string(),
   courseName: z.string(),
   unitTitle: z.string(),
   topics: z.array(z.string()),
-  gameType: z.enum(["quiz", "matching", "flashcards"]),
+  gameType: z.enum([
+    "quiz",
+    "matching",
+    "flashcards",
+    "speed",
+    "scramble",
+    "sort",
+    "escape",
+    "wordbuild",
+    "battleship",
+  ]),
   difficulty: z.enum(["intro", "standard", "challenge", "exam"]).default("standard"),
   objectives: z.string().max(500).default(""),
 });
