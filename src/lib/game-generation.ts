@@ -192,6 +192,125 @@ export const JSON_SCHEMAS = {
       },
     },
   },
+  speed: {
+    type: "object",
+    additionalProperties: false,
+    required: ["items"],
+    properties: {
+      items: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["statement", "isTrue", "explanation"],
+          properties: {
+            statement: { type: "string" },
+            isTrue: { type: "boolean" },
+            explanation: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  scramble: {
+    type: "object",
+    additionalProperties: false,
+    required: ["words"],
+    properties: {
+      words: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["word", "hint"],
+          properties: {
+            word: { type: "string" },
+            hint: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  sort: {
+    type: "object",
+    additionalProperties: false,
+    required: ["categories", "items"],
+    properties: {
+      categories: { type: "array", items: { type: "string" } },
+      items: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["label", "category"],
+          properties: {
+            label: { type: "string" },
+            category: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  escape: {
+    type: "object",
+    additionalProperties: false,
+    required: ["stages"],
+    properties: {
+      stages: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["clue", "options", "correctIndex", "hint"],
+          properties: {
+            clue: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            correctIndex: { type: "integer" },
+            hint: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  wordbuild: {
+    type: "object",
+    additionalProperties: false,
+    required: ["puzzles"],
+    properties: {
+      puzzles: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["answer", "clue"],
+          properties: {
+            answer: { type: "string" },
+            clue: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  battleship: {
+    type: "object",
+    additionalProperties: false,
+    required: ["questions"],
+    properties: {
+      questions: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["question", "options", "correctIndex"],
+          properties: {
+            question: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            correctIndex: { type: "integer" },
+          },
+        },
+      },
+    },
+  },
 } as const;
 
 export const PROMPTS = {
@@ -200,6 +319,18 @@ export const PROMPTS = {
     "Create 4 matching pairs for this unit. Each pair has an id, a left term/concept and a right definition/example. Return JSON.",
   flashcards:
     "Create 6 flashcards for this unit. Each flashcard has a term and a concise definition. Return JSON.",
+  speed:
+    "Create 8 rapid-fire true/false statements for this unit. Each item has a statement, isTrue boolean, and a one-sentence explanation. Mix true and false. Return JSON.",
+  scramble:
+    "Create 6 key terms from this unit to unscramble. Each word must be a single word in UPPERCASE letters only (no spaces or hyphens), with a short hint. Return JSON.",
+  sort:
+    "Create a sorting game for this unit with exactly 3 categories and 9 items (3 per category). Each item has a label and a category that exactly matches one of the categories. Return JSON.",
+  escape:
+    "Create a 4-stage escape-room puzzle chain for this unit. Each stage has a clue framed as a lock, exactly 4 options, one correctIndex between 0 and 3, and a hint. Increase difficulty each stage. Return JSON.",
+  wordbuild:
+    "Create 5 word-building puzzles for this unit. Each answer must be a single UPPERCASE word (4-14 letters, no spaces or hyphens) with a clue. Return JSON.",
+  battleship:
+    "Create 8 multiple-choice questions for this unit to power a battleship game. Each question has exactly 4 options and one correctIndex between 0 and 3. Return JSON.",
 } as const;
 
 /** Error codes the client uses to drive credit-aware UX. */
