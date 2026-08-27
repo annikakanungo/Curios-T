@@ -9,6 +9,17 @@ import {
   type CurriculumSystem,
 } from "@/lib/curriculum";
 import { generateGame, type GeneratedGame } from "@/lib/games.functions";
+import {
+  QuizGame,
+  MatchingGame,
+  FlashcardGame,
+  SpeedGame,
+  ScrambleGame,
+  SortGame,
+  EscapeGame,
+  WordBuildGame,
+  BattleshipGame,
+} from "@/components/games/GameShells";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,6 +88,12 @@ const DIFFICULTIES = [
 ] as const;
 
 type Difficulty = (typeof DIFFICULTIES)[number]["value"];
+
+const generatedShips = [
+  { name: "Scout", cells: [2, 3] },
+  { name: "Cruiser", cells: [11, 16, 21] },
+  { name: "Flagship", cells: [7, 8, 9] },
+];
 
 const CREDIT_KEY = "curiost.creditState";
 
