@@ -498,15 +498,21 @@ function GeneratePage() {
             {sourceLabel}
           </p>
 
-          {generated.type === "quiz" && (
-            <GeneratedQuizPreview questions={generated.questions} />
-          )}
-          {generated.type === "matching" && (
-            <GeneratedMatchingPreview pairs={generated.pairs} />
-          )}
-          {generated.type === "flashcards" && (
-            <GeneratedFlashcardsPreview cards={generated.cards} />
-          )}
+          <div className="mt-6">
+            {generated.type === "quiz" && <QuizGame questions={generated.questions} />}
+            {generated.type === "matching" && <MatchingGame pairs={generated.pairs} />}
+            {generated.type === "flashcards" && <FlashcardGame cards={generated.cards} />}
+            {generated.type === "speed" && <SpeedGame items={generated.items} />}
+            {generated.type === "scramble" && <ScrambleGame words={generated.words} />}
+            {generated.type === "sort" && <SortGame set={generated.set} />}
+            {generated.type === "escape" && <EscapeGame stages={generated.stages} />}
+            {generated.type === "wordbuild" && <WordBuildGame puzzles={generated.puzzles} />}
+            {generated.type === "battleship" && (
+              <BattleshipGame
+                set={{ size: 5, ships: generatedShips, questions: generated.questions }}
+              />
+            )}
+          </div>
         </div>
       )}
     </main>
