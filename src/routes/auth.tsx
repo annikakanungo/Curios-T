@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>) => ({
-    redirect: typeof search.redirect === "string" ? search.redirect : "/generate",
+    redirect: typeof search["redirect"] === "string" ? search["redirect"] : "/generate",
   }),
   head: () => ({
     meta: [
