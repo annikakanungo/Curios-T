@@ -417,9 +417,32 @@ export function parseGenerated(
   gameType: GenerateGameInputType["gameType"],
   raw: unknown,
 ): GeneratedGame {
-  if (gameType === "quiz") return { type: "quiz", questions: QuizSchema.parse(raw).questions };
-  if (gameType === "matching") return { type: "matching", pairs: MatchingSchema.parse(raw).pairs };
-  return { type: "flashcards", cards: FlashcardsSchema.parse(raw).cards };
+  switch (gameType) {
+    case "quiz":
+      return { type: "quiz", questions: QuizSchema.parse(raw).questions };
+    case "matching":
+      return { type: "matching", pairs: MatchingSchema.parse(raw).pairs };
+    case "flashcards":
+      return { type: "flashcards", cards: FlashcardsSchema.parse(raw).cards };
+    case "speed":
+      return { type: "speed", items: SpeedSchema.parse(raw).items };
+    case "scramble":
+      return { type: "scramble", words: ScrambleSchema.parse(raw).words };
+    case "sort":
+      return { type: "sort", set: SortSchema.parse(raw) };
+    case "escape":
+      return { type: "escape", stages: EscapeSchema.parse(raw).stages };
+    case "wordbuild":
+      return {
+        type: "wordbuild",
+        puzzles: WordBuildSchema.parse(raw).puzzles.map((p) => ({
+          ...p,
+          answer: p.answer.toUpperCase(),
+        })),
+      };
+    case "battleship":
+      return { type: "battleship", questions: BattleshipSchema.parse(raw).questions };
+  }
 }
 
 /** One full generation round-trip, shared by the server fn and the smoke tests. */
