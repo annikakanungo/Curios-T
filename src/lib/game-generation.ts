@@ -427,7 +427,13 @@ export function parseGenerated(
     case "speed":
       return { type: "speed", items: SpeedSchema.parse(raw).items };
     case "scramble":
-      return { type: "scramble", words: ScrambleSchema.parse(raw).words };
+      return {
+        type: "scramble",
+        words: ScrambleSchema.parse(raw).words.map((w) => ({
+          ...w,
+          word: w.word.toUpperCase().replace(/[^A-Z]/g, ""),
+        })),
+      };
     case "sort":
       return { type: "sort", set: SortSchema.parse(raw) };
     case "escape":
