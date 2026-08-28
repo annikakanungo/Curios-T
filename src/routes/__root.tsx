@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -133,6 +135,52 @@ function RootShell({ children }: { children: ReactNode }) {
         <Scripts />
       </body>
     </html>
+  );
+}
+
+function AuthControl() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const { queryClient } = Route.useRouteContext();
+
+  if (loading) return <div className="size-9 rounded-full bg-foreground/5" />;
+
+  if (!user) {
+    return (
+      <Link
+        to="/auth"
+        search={{ redirect: "/generate" }}
+        className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        Sign in
+      </Link>
+    );
+  }
+
+  const initials = (user.email ?? "?").slice(0, 2).toUpperCase();
+
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    router.navigate({ to: "/auth", search: { redirect: "/generate" }, replace: true });
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        title={user.email ?? ""}
+        className="grid size-9 place-items-center rounded-full border border-foreground/5 bg-accent-lavender text-xs font-bold text-violet-900"
+      >
+        {initials}
+      </div>
+      <button
+        onClick={signOut}
+        className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+      >
+        Sign out
+      </button>
+    </div>
   );
 }
 
