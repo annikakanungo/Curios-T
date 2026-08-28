@@ -157,6 +157,7 @@ function CreditNotice({
 }
 
 function GeneratePage() {
+  const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<"course" | "topic">("course");
   const [system, setSystem] = useState<CurriculumSystem>("Ontario");
   const [difficulty, setDifficulty] = useState<Difficulty>("standard");
