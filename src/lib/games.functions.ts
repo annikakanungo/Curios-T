@@ -11,6 +11,7 @@ import {
 export type { GeneratedGame } from "./game-generation";
 
 export const generateGame = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input): GenerateGameInputType => GenerateGameInput.parse(input))
   .handler(async ({ data }): Promise<GeneratedGame> => {
     const key = process.env["LOVABLE_API_KEY"];
