@@ -183,12 +183,10 @@ function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 rounded-full bg-accent-peach px-3 py-1">
+          <div className="hidden items-center gap-2 rounded-full bg-accent-peach px-3 py-1 sm:flex">
             <span className="text-xs font-mono font-bold text-orange-700">7 DAY STREAK</span>
           </div>
-          <div className="grid size-9 place-items-center rounded-full border border-foreground/5 bg-accent-lavender font-bold text-violet-900">
-            JD
-          </div>
+          <AuthControl />
         </div>
       </div>
     </nav>
