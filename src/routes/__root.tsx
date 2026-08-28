@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -136,6 +138,52 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function AuthControl() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const { queryClient } = Route.useRouteContext();
+
+  if (loading) return <div className="size-9 rounded-full bg-foreground/5" />;
+
+  if (!user) {
+    return (
+      <Link
+        to="/auth"
+        search={{ redirect: "/generate" }}
+        className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        Sign in
+      </Link>
+    );
+  }
+
+  const initials = (user.email ?? "?").slice(0, 2).toUpperCase();
+
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    router.navigate({ to: "/auth", search: { redirect: "/generate" }, replace: true });
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        title={user.email ?? ""}
+        className="grid size-9 place-items-center rounded-full border border-foreground/5 bg-accent-lavender text-xs font-bold text-violet-900"
+      >
+        {initials}
+      </div>
+      <button
+        onClick={signOut}
+        className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+      >
+        Sign out
+      </button>
+    </div>
+  );
+}
+
 function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-foreground/5 bg-background/80 px-6 py-3 backdrop-blur-md">
@@ -183,12 +231,10 @@ function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 rounded-full bg-accent-peach px-3 py-1">
+          <div className="hidden items-center gap-2 rounded-full bg-accent-peach px-3 py-1 sm:flex">
             <span className="text-xs font-mono font-bold text-orange-700">7 DAY STREAK</span>
           </div>
-          <div className="grid size-9 place-items-center rounded-full border border-foreground/5 bg-accent-lavender font-bold text-violet-900">
-            JD
-          </div>
+          <AuthControl />
         </div>
       </div>
     </nav>

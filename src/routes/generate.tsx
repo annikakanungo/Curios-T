@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { decodeGenerationError, type GenerationErrorCode } from "@/lib/game-generation";
 import { OBJECTIVE_TEMPLATES } from "@/lib/objective-templates";
 import {
@@ -156,6 +157,7 @@ function CreditNotice({
 }
 
 function GeneratePage() {
+  const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<"course" | "topic">("course");
   const [system, setSystem] = useState<CurriculumSystem>("Ontario");
   const [difficulty, setDifficulty] = useState<Difficulty>("standard");
@@ -256,6 +258,38 @@ function GeneratePage() {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <main className="mx-auto max-w-3xl px-6 py-24 text-center text-muted-foreground">
+        Loading…
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="mx-auto max-w-md px-6 py-20 text-center">
+        <h1 className="text-4xl font-extrabold tracking-tighter">Create a free account</h1>
+        <p className="mt-4 text-muted-foreground">
+          You need a Curios T account to generate study games. It takes a few seconds — your games,
+          XP, and certificates stay saved.
+        </p>
+        <div className="mt-8 flex flex-col gap-3">
+          <Button asChild className="w-full rounded-2xl py-6 text-base font-extrabold">
+            <Link to="/auth" search={{ redirect: "/generate" }}>
+              Create account
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="w-full rounded-2xl py-6 text-base font-bold">
+            <Link to="/auth" search={{ redirect: "/generate" }}>
+              I already have an account
+            </Link>
+          </Button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
