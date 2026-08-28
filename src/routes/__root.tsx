@@ -19,15 +19,15 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h1 className="font-display text-6xl font-bold text-foreground md:text-8xl">404</h1>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Level not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="pixel-btn rounded-none px-4 py-2 text-sm"
           >
             Go home
           </Link>
@@ -59,13 +59,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="pixel-btn rounded-none px-4 py-2 text-sm"
           >
             Try again
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="pixel-btn-outline rounded-none px-4 py-2 text-sm"
           >
             Go home
           </a>
@@ -114,7 +114,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Work+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap",
       },
     ],
   }),
@@ -143,14 +143,14 @@ function AuthControl() {
   const router = useRouter();
   const { queryClient } = Route.useRouteContext();
 
-  if (loading) return <div className="size-9 rounded-full bg-foreground/5" />;
+  if (loading) return <div className="size-9 rounded-full border-4 border-foreground/10 bg-card" />;
 
   if (!user) {
     return (
       <Link
         to="/auth"
         search={{ redirect: "/generate" }}
-        className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+        className="pixel-btn rounded-none px-4 py-2 text-xs"
       >
         Sign in
       </Link>
@@ -167,16 +167,16 @@ function AuthControl() {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
       <div
         title={user.email ?? ""}
-        className="grid size-9 place-items-center rounded-full border border-foreground/5 bg-accent-lavender text-xs font-bold text-violet-900"
+        className="grid size-9 place-items-center border-4 border-foreground bg-game-gold text-xs font-bold text-game-ink"
       >
         {initials}
       </div>
       <button
         onClick={signOut}
-        className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+        className="text-sm font-bold text-muted-foreground transition-colors hover:text-foreground"
       >
         Sign out
       </button>
@@ -186,13 +186,13 @@ function AuthControl() {
 
 function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 border-b border-foreground/5 bg-background/80 px-6 py-3 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b-4 border-foreground bg-card px-4 py-3">
       <div className="mx-auto flex max-w-6xl items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link to="/" className="text-xl font-extrabold tracking-tighter text-primary">
-            Curios T
+        <div className="flex items-center gap-6 md:gap-10">
+          <Link to="/" className="font-display text-sm font-extrabold tracking-tighter text-primary md:text-base">
+            CURIOS T
           </Link>
-          <div className="hidden gap-6 text-sm font-semibold text-muted-foreground md:flex">
+          <div className="hidden gap-4 text-xs font-bold uppercase tracking-wide text-muted-foreground md:flex">
             <Link
               to="/library"
               activeProps={{ className: "text-foreground" }}
@@ -231,8 +231,8 @@ function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="hidden items-center gap-2 rounded-full bg-accent-peach px-3 py-1 sm:flex">
-            <span className="text-xs font-mono font-bold text-orange-700">7 DAY STREAK</span>
+          <div className="hidden items-center gap-2 border-4 border-foreground bg-game-gold px-3 py-1 sm:flex">
+            <span className="font-mono text-[10px] font-bold uppercase text-game-ink">7 Day Streak</span>
           </div>
           <AuthControl />
         </div>
