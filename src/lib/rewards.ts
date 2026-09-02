@@ -46,7 +46,7 @@ export const PRIZES: Prize[] = [
     blurb: "Top scores across the fast-paced arcade game modes.",
     cost: 800,
     emoji: "🎮",
-    accent: "bg-accent-sky",
+    accent: "bg-game-red/25",
     certificateTitle: "Certificate of Arcade Excellence",
     certificateLine: "has achieved champion-level scores in Curios T arcade learning challenges.",
   },
