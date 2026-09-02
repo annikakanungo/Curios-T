@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { games } from "@/lib/games";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/library")({
   head: () => ({
@@ -8,12 +7,12 @@ export const Route = createFileRoute("/library")({
       { title: "Game Library — Curios T" },
       {
         name: "description",
-        content: "Browse Ontario curriculum-aligned educational games by subject and grade.",
+        content: "Browse curriculum-aligned educational games by subject, mode and level.",
       },
       { property: "og:title", content: "Game Library — Curios T" },
       {
         property: "og:description",
-        content: "Browse Ontario curriculum-aligned educational games by subject and grade.",
+        content: "Browse curriculum-aligned educational games by subject, mode and level.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -23,20 +22,24 @@ export const Route = createFileRoute("/library")({
 });
 
 const accentBg: Record<string, string> = {
-  lavender: "bg-accent-lavender",
-  mint: "bg-accent-mint",
-  peach: "bg-accent-peach",
+  lavender: "bg-game-blue/20",
+  mint: "bg-game-green/20",
+  peach: "bg-game-gold/25",
 };
 
 function LibraryPage() {
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <section className="mb-10 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tighter text-balance md:text-5xl">
-          Game Library
+    <main className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
+      <section className="hud-panel scanlines mb-8 p-6 md:p-8">
+        <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
+          ▮ ARCHIVE
+        </span>
+        <h1 className="mt-3 font-display text-xl leading-relaxed md:text-3xl md:leading-relaxed">
+          GAME LIBRARY
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-          Quizzes, matching, flashcards, word-building, battleship, lightning rounds and escape rooms — all built for Ontario courses and units.
+        <p className="mt-4 max-w-2xl text-muted-foreground">
+          Quizzes, matching, flashcards, word forges, battleship grids, lightning rounds and escape
+          rooms — all built for real course units.
         </p>
       </section>
 
@@ -44,11 +47,11 @@ function LibraryPage() {
         {games.map((game, idx) => (
           <div
             key={game.id}
-            className="group animate-fade-up rounded-3xl border border-foreground/5 bg-white p-2 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-            style={{ animationDelay: `${idx * 100}ms` }}
+            className="hud-panel animate-fade-up flex flex-col p-3"
+            style={{ animationDelay: `${idx * 70}ms` }}
           >
             <div
-              className={`grid aspect-[4/3] w-full place-items-center rounded-2xl ${accentBg[game.accent]} mb-4 overflow-hidden`}
+              className={`mb-4 grid aspect-[4/3] w-full place-items-center overflow-hidden border-4 border-foreground ${accentBg[game.accent]}`}
             >
               <img
                 src={game.image}
@@ -59,39 +62,39 @@ function LibraryPage() {
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="px-4 pb-4">
-              <div className="mb-2 flex items-start justify-between">
-                <h3 className="text-xl font-extrabold tracking-tight">{game.title}</h3>
-                <span className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-[10px]">
-                  LVL {game.level}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground text-pretty">{game.description}</p>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold">
-                  {game.subject}
-                </span>
-                <Button asChild size="sm" className="rounded-full">
-                  <Link to="/play/$gameId" params={{ gameId: game.id }}>
-                    Play
-                  </Link>
-                </Button>
-              </div>
+            <div className="flex items-start justify-between gap-2">
+              <h2 className="text-lg font-extrabold tracking-tight">{game.title}</h2>
+              <span className="shrink-0 border-2 border-foreground bg-secondary px-2 py-0.5 font-mono text-[9px] font-bold">
+                LVL {game.level}
+              </span>
+            </div>
+            <p className="mt-1 flex-1 text-sm text-muted-foreground">{game.description}</p>
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <span className="border-2 border-foreground bg-background px-2 py-1 font-mono text-[9px] font-bold uppercase">
+                {game.subject}
+              </span>
+              <Link
+                to="/play/$gameId"
+                params={{ gameId: game.id }}
+                className="pixel-btn rounded-none px-4 py-2 font-display text-[9px]"
+              >
+                PLAY
+              </Link>
             </div>
           </div>
         ))}
       </div>
 
-      <section className="mt-16 rounded-[32px] border border-foreground/5 bg-white p-8 text-center">
-        <h2 className="text-2xl font-extrabold tracking-tight">
-          Want a game for your exact unit?
+      <section className="hud-panel mt-12 p-8 text-center">
+        <h2 className="font-display text-sm leading-relaxed md:text-base md:leading-relaxed">
+          NEED A GAME FOR YOUR UNIT?
         </h2>
-        <p className="mx-auto mt-2 max-w-xl text-muted-foreground">
-          Pick your Ontario course and unit, and Curios T will generate a custom study game for that material.
+        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+          Pick your Ontario, IB or AP course and unit, and Curios T generates a custom study game.
         </p>
-        <Button asChild className="mt-6 rounded-full px-8 py-5 text-base font-bold">
-          <Link to="/generate">Generate a Game</Link>
-        </Button>
+        <Link to="/generate" className="pixel-btn mt-6 rounded-none px-6 py-3 font-display text-[10px]">
+          GENERATE A GAME
+        </Link>
       </section>
     </main>
   );

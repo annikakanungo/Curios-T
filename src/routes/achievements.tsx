@@ -6,12 +6,12 @@ export const Route = createFileRoute("/achievements")({
       { title: "Achievements — Curios T" },
       {
         name: "description",
-        content: "Track your learning achievements and badges on Curios T.",
+        content: "Track your learning achievements and unlock retro badges on Curios T.",
       },
       { property: "og:title", content: "Achievements — Curios T" },
       {
         property: "og:description",
-        content: "Track your learning achievements and badges on Curios T.",
+        content: "Track your learning achievements and unlock retro badges on Curios T.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,35 +30,59 @@ const achievements = [
 ];
 
 function AchievementsPage() {
+  const unlocked = achievements.filter((a) => a.unlocked).length;
+
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <section className="mb-10 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tighter md:text-5xl">Achievements</h1>
-        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Collect badges as you master new subjects and skills.
-        </p>
+    <main className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12">
+      <section className="hud-panel scanlines mb-8 flex flex-col gap-4 p-6 md:flex-row md:items-end md:justify-between md:p-8">
+        <div>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-primary">
+            ▮ TROPHY ROOM
+          </span>
+          <h1 className="mt-3 font-display text-xl leading-relaxed md:text-3xl md:leading-relaxed">
+            ACHIEVEMENTS
+          </h1>
+          <p className="mt-4 max-w-xl text-muted-foreground">
+            Collect badges as you master new subjects and skills.
+          </p>
+        </div>
+        <div className="border-4 border-foreground bg-background px-5 py-3 text-center">
+          <p className="font-display text-base text-game-gold">
+            {unlocked}/{achievements.length}
+          </p>
+          <p className="mt-2 font-mono text-[10px] font-bold uppercase text-muted-foreground">
+            Unlocked
+          </p>
+        </div>
       </section>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {achievements.map((a, idx) => (
           <div
             key={a.id}
-            className={`animate-fade-up rounded-3xl border p-6 text-center transition-all ${
+            className={`animate-fade-up border-4 p-6 text-center ${
               a.unlocked
-                ? "border-foreground/5 bg-white shadow-sm"
-                : "border-dashed border-foreground/10 bg-background opacity-70"
+                ? "hud-panel border-foreground"
+                : "border-dashed border-foreground/40 bg-background opacity-70"
             }`}
-            style={{ animationDelay: `${idx * 80}ms` }}
+            style={{ animationDelay: `${idx * 70}ms` }}
           >
             <div
-              className={`mx-auto mb-4 grid size-16 place-items-center rounded-2xl text-2xl ${
-                a.unlocked ? "bg-accent-lavender" : "bg-muted"
+              className={`mx-auto mb-4 grid size-16 place-items-center border-4 border-foreground text-2xl ${
+                a.unlocked ? "bg-game-gold" : "bg-muted"
               }`}
             >
               {a.unlocked ? "🏆" : "🔒"}
             </div>
-            <h3 className="text-lg font-extrabold tracking-tight">{a.title}</h3>
+            <h2 className="text-base font-extrabold tracking-tight">{a.title}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{a.description}</p>
+            <p
+              className={`mt-4 font-mono text-[9px] font-bold uppercase tracking-widest ${
+                a.unlocked ? "text-game-green" : "text-muted-foreground"
+              }`}
+            >
+              {a.unlocked ? "Unlocked" : "Locked"}
+            </p>
           </div>
         ))}
       </div>
