@@ -123,6 +123,7 @@ function Certificate({
 }
 
 function PrizesPage() {
+  const { user, loading: authLoading } = useAuth();
   const [xp, setXpState] = useState(0);
   const [name, setName] = useState("");
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
@@ -137,6 +138,16 @@ function PrizesPage() {
   }, []);
 
   const handleRedeem = (prize: Prize) => {
+    if (authLoading) {
+      toast.error("Checking your account — one moment.");
+      return;
+    }
+    if (!user) {
+      toast.error("Create an account or log in to redeem certificates.", {
+        description: "Certificates are tied to your Curios T account.",
+      });
+      return;
+    }
     const learner = name.trim();
     if (!learner) {
       toast.error("Add the name that should appear on the certificate first.");
