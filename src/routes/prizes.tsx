@@ -190,7 +190,11 @@ function PrizesPage() {
               Create an account or log in to redeem XP for certificates.
             </p>
           </div>
-          <Link to="/auth" className="pixel-btn rounded-none px-6 py-3 font-display text-[9px]">
+          <Link
+            to="/auth"
+            search={{ redirect: "/prizes" }}
+            className="pixel-btn rounded-none px-6 py-3 font-display text-[9px]"
+          >
             LOG IN / SIGN UP
           </Link>
         </div>
