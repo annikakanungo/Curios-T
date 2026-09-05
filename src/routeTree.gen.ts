@@ -14,6 +14,7 @@ import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as GenerateRouteImport } from './routes/generate'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PrizesRouteImport } from './routes/prizes'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuestsRouteImport } from './routes/quests'
@@ -44,6 +45,11 @@ const LibraryRoute = LibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrizesRoute = PrizesRouteImport.update({
   id: '/prizes',
   path: '/prizes',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/generate': typeof GenerateRoute
   '/library': typeof LibraryRoute
+  '/privacy': typeof PrivacyRoute
   '/prizes': typeof PrizesRoute
   '/progress': typeof ProgressRoute
   '/quests': typeof QuestsRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/generate': typeof GenerateRoute
   '/library': typeof LibraryRoute
+  '/privacy': typeof PrivacyRoute
   '/prizes': typeof PrizesRoute
   '/progress': typeof ProgressRoute
   '/quests': typeof QuestsRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/generate': typeof GenerateRoute
   '/library': typeof LibraryRoute
+  '/privacy': typeof PrivacyRoute
   '/prizes': typeof PrizesRoute
   '/progress': typeof ProgressRoute
   '/quests': typeof QuestsRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/generate'
     | '/library'
+    | '/privacy'
     | '/prizes'
     | '/progress'
     | '/quests'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/generate'
     | '/library'
+    | '/privacy'
     | '/prizes'
     | '/progress'
     | '/quests'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/generate'
     | '/library'
+    | '/privacy'
     | '/prizes'
     | '/progress'
     | '/quests'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   GenerateRoute: typeof GenerateRoute
   LibraryRoute: typeof LibraryRoute
+  PrivacyRoute: typeof PrivacyRoute
   PrizesRoute: typeof PrizesRoute
   ProgressRoute: typeof ProgressRoute
   QuestsRoute: typeof QuestsRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/prizes': {
       id: '/prizes'
       path: '/prizes'
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   GenerateRoute: GenerateRoute,
   LibraryRoute: LibraryRoute,
+  PrivacyRoute: PrivacyRoute,
   PrizesRoute: PrizesRoute,
   ProgressRoute: ProgressRoute,
   QuestsRoute: QuestsRoute,
