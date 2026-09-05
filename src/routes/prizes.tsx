@@ -182,6 +182,20 @@ function PrizesPage() {
         </p>
       </section>
 
+      {ready && !authLoading && !user && (
+        <div className="hud-panel mb-8 flex flex-col items-start gap-4 border-game-gold p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-[10px] text-game-gold">ACCOUNT REQUIRED</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Create an account or log in to redeem XP for certificates.
+            </p>
+          </div>
+          <Link to="/auth" className="pixel-btn rounded-none px-6 py-3 font-display text-[9px]">
+            LOG IN / SIGN UP
+          </Link>
+        </div>
+      )}
+
       <div className="hud-panel mb-8 p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
