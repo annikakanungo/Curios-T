@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
 import {
   PRIZES,
   formatDate,
@@ -122,6 +123,7 @@ function Certificate({
 }
 
 function PrizesPage() {
+  const { user, loading: authLoading } = useAuth();
   const [xp, setXpState] = useState(0);
   const [name, setName] = useState("");
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
@@ -136,6 +138,16 @@ function PrizesPage() {
   }, []);
 
   const handleRedeem = (prize: Prize) => {
+    if (authLoading) {
+      toast.error("Checking your account — one moment.");
+      return;
+    }
+    if (!user) {
+      toast.error("Create an account or log in to redeem certificates.", {
+        description: "Certificates are tied to your Curios T account.",
+      });
+      return;
+    }
     const learner = name.trim();
     if (!learner) {
       toast.error("Add the name that should appear on the certificate first.");
@@ -169,6 +181,24 @@ function PrizesPage() {
           portfolio.
         </p>
       </section>
+
+      {ready && !authLoading && !user && (
+        <div className="hud-panel mb-8 flex flex-col items-start gap-4 border-game-gold p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-[10px] text-game-gold">ACCOUNT REQUIRED</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Create an account or log in to redeem XP for certificates.
+            </p>
+          </div>
+          <Link
+            to="/auth"
+            search={{ redirect: "/prizes" }}
+            className="pixel-btn rounded-none px-6 py-3 font-display text-[9px]"
+          >
+            LOG IN / SIGN UP
+          </Link>
+        </div>
+      )}
 
       <div className="hud-panel mb-8 p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
