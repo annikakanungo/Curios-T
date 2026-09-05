@@ -241,6 +241,27 @@ function Navbar() {
   );
 }
 
+function Footer() {
+  return (
+    <footer className="border-t-4 border-foreground bg-card px-4 py-6">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 md:flex-row">
+        <p className="text-xs font-bold text-muted-foreground">
+          © {new Date().getFullYear()} Curios T. Play your way to mastery.
+        </p>
+        <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+          <Link
+            to="/privacy"
+            activeProps={{ className: "text-foreground" }}
+            className="transition-colors hover:text-foreground"
+          >
+            Privacy Policy
+          </Link>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -248,6 +269,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Navbar />
       <Outlet />
+      <Footer />
       <Toaster />
     </QueryClientProvider>
   );
