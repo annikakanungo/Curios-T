@@ -18,22 +18,55 @@ interface LoaderData {
 }
 
 export const Route = createFileRoute("/play/$gameId")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Play ${params.gameId} — Curios T` },
-      {
-        name: "description",
-        content: "Play an interactive educational game on Curios T.",
-      },
-      { property: "og:title", content: `Play ${params.gameId} — Curios T` },
-      {
-        property: "og:description",
-        content: "Play an interactive educational game on Curios T.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const game = loaderData?.game;
+    const content = loaderData?.content;
+    const title = game ? `${game.title} — ${game.type} game — Curios T` : "Play — Curios T";
+    const description = game
+      ? `${game.description} A ${game.type} game for ${game.subject} (level ${game.level}) on Curios T.`
+      : "Play an interactive educational game on Curios T.";
+    const url = `https://curios-t.lovable.app/play/${params.gameId}`;
+
+    const scripts =
+      content && content.type === "quiz"
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Quiz",
+                name: game?.title,
+                about: { "@type": "Thing", name: game?.subject },
+                educationalLevel: `Level ${game?.level}`,
+                url,
+                hasPart: content.questions.map((q) => ({
+                  "@type": "Question",
+                  eduQuestionType: "Multiple choice",
+                  text: q.question,
+                  acceptedAnswer: { "@type": "Answer", text: q.options[q.correctIndex] },
+                  suggestedAnswer: q.options
+                    .filter((_, i) => i !== q.correctIndex)
+                    .map((option) => ({ "@type": "Answer", text: option })),
+                })),
+              }),
+            },
+          ]
+        : undefined;
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      ...(scripts ? { scripts } : {}),
+    };
+  },
   loader: async ({ params }): Promise<LoaderData> => {
     const game = getGameById(params.gameId);
     if (!game) throw notFound();
@@ -41,6 +74,7 @@ export const Route = createFileRoute("/play/$gameId")({
   },
   component: PlayPage,
 });
+
 
 function PlayPage() {
   const { game, content } = Route.useLoaderData() as LoaderData;
