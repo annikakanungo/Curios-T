@@ -18,6 +18,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PrizesRouteImport } from './routes/prizes'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuestsRouteImport } from './routes/quests'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PlayGameIdRouteImport } from './routes/play.$gameId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -65,6 +66,11 @@ const QuestsRoute = QuestsRouteImport.update({
   path: '/quests',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlayGameIdRoute = PlayGameIdRouteImport.update({
   id: '/play/$gameId',
   path: '/play/$gameId',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/prizes': typeof PrizesRoute
   '/progress': typeof ProgressRoute
   '/quests': typeof QuestsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/play/$gameId': typeof PlayGameIdRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/prizes': typeof PrizesRoute
   '/progress': typeof ProgressRoute
   '/quests': typeof QuestsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/play/$gameId': typeof PlayGameIdRoute
 }
 export interface FileRoutesById {
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/prizes': typeof PrizesRoute
   '/progress': typeof ProgressRoute
   '/quests': typeof QuestsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/play/$gameId': typeof PlayGameIdRoute
 }
 export interface FileRouteTypes {
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/prizes'
     | '/progress'
     | '/quests'
+    | '/sitemap.xml'
     | '/play/$gameId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/prizes'
     | '/progress'
     | '/quests'
+    | '/sitemap.xml'
     | '/play/$gameId'
   id:
     | '__root__'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/prizes'
     | '/progress'
     | '/quests'
+    | '/sitemap.xml'
     | '/play/$gameId'
   fileRoutesById: FileRoutesById
 }
@@ -157,6 +169,7 @@ export interface RootRouteChildren {
   PrizesRoute: typeof PrizesRoute
   ProgressRoute: typeof ProgressRoute
   QuestsRoute: typeof QuestsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   PlayGameIdRoute: typeof PlayGameIdRoute
 }
 
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/play/$gameId': {
       id: '/play/$gameId'
       path: '/play/$gameId'
@@ -245,6 +265,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrizesRoute: PrizesRoute,
   ProgressRoute: ProgressRoute,
   QuestsRoute: QuestsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   PlayGameIdRoute: PlayGameIdRoute,
 }
 export const routeTree = rootRouteImport

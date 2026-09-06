@@ -19,8 +19,10 @@ interface LoaderData {
 
 export const Route = createFileRoute("/play/$gameId")({
   head: ({ params, loaderData }) => {
-    const game = loaderData?.game;
-    const content = loaderData?.content;
+    const data = loaderData as LoaderData | undefined;
+    const game = data?.game;
+    const content = data?.content;
+
     const title = game ? `${game.title} — ${game.type} game — Curios T` : "Play — Curios T";
     const description = game
       ? `${game.description} A ${game.type} game for ${game.subject} (level ${game.level}) on Curios T.`
